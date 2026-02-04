@@ -1,0 +1,94 @@
+import 'package:frontend/core/storage/secure_storage.dart';
+import 'package:frontend/features/auth/data/auth_api.dart';
+import 'package:frontend/features/auth/models/user_model.dart';
+
+class AuthRepository {
+  final AuthApi _authApi;
+  final SecureStorage _secureStorage;
+  
+  AuthRepository({
+    required AuthApi authApi,
+    required SecureStorage secureStorage,
+  }) : _authApi = authApi,
+       _secureStorage = secureStorage;
+  
+  Future<AuthResponse> register({
+    required String name,
+    required String email,
+    required String password,
+    required String auth_provider
+  }) async {
+    final response = await _authApi.register(
+      name: name,
+      email: email,
+      password: password,
+      auth_provider: auth_provider
+    );
+    
+    // Save tokens and user data
+    await _saveAuthData(response);
+    
+    return response;
+  }
+  
+  Future<AuthResponse> login({
+    required String email,
+    required String password,
+  }) async {
+    final response = await _authApi.login(
+      email: email,
+      password: password,
+    );
+    
+    // Save tokens and user data
+    await _saveAuthData(response);
+    
+    return response;
+  }
+  
+  Future<void> logout() async {
+    try {
+      await _authApi.logout();
+    } finally {
+      await _secureStorage.clearAll();
+    }
+  }
+  
+  Future<void> forgotPassword(String email) async {
+    await _authApi.forgotPassword(email);
+  }
+  
+  Future<bool> isLoggedIn() async {
+    final token = await _secureStorage.getAccessToken();
+    return token != null && token.isNotEmpty;
+  }
+  
+  Future<UserModel?> getCurrentUser() async {
+    final userId = await _secureStorage.getUserId();
+    final email = await _secureStorage.getUserEmail();
+    final name = await _secureStorage.getUserName();
+
+    
+    if (userId == null || email == null || name == null) {
+      return null;
+    }
+    
+    return UserModel(
+      id: userId,
+      name: name,
+      imageUrl: '',
+      email: email, authProvider: 'LOCAL',
+      // auth_provider:auth_provider
+    );
+  }
+  
+  Future<void> _saveAuthData(AuthResponse response) async {
+    await _secureStorage.saveAccessToken(response.accessToken);
+    await _secureStorage.saveRefreshToken(response.refreshToken);
+    await _secureStorage.saveUserData(
+      userId: response.user.id,
+      email: response.user.email,
+      name: response.user.name,
+    );
+  }
+}
