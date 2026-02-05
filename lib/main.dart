@@ -22,7 +22,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   
   runApp(
-    // ✅ CRITICAL: Register dependencies IN CORRECT ORDER (bottom-up)
+    // CRITICAL: Register dependencies IN CORRECT ORDER (bottom-up)
     MultiProvider(
       providers: [
         // 1. Core dependencies (no dependencies)
@@ -44,7 +44,7 @@ void main() {
         )),
 
         // 4. Feature providers (depend on repositories)
-        // ✅ Initialize auth immediately at startup
+        //  Initialize auth immediately at startup
         ChangeNotifierProvider(create: (context) {
           final provider = AuthProvider(context.read<AuthRepository>());
           provider.initialize(); // Start auth check immediately

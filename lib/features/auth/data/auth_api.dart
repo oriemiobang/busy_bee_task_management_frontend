@@ -31,6 +31,25 @@ class AuthApi {
       throw _handleError(e);
     }
   }
+
+  Future<AuthResponse> changePassword({
+    required String currentPassword, 
+    required String newPassword
+  }) async {
+    try {
+      final response  = await _dioClient.dio.patch(
+        ApiEndpoints.updatePassword,
+        data:  {
+          "currentPassword": currentPassword,
+          "newPassword": newPassword
+        }
+        
+      );
+      return AuthResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
   
   Future<AuthResponse> login({
     required String email,

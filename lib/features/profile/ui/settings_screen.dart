@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/constants/colors.dart';
 import 'package:frontend/features/auth/models/user_model.dart';
 import 'package:frontend/features/profile/state/account_provider.dart';
 import 'package:frontend/features/profile/ui/widgets/profile_header.dart';
 import 'package:frontend/features/profile/ui/widgets/settings_items.dart';
 import 'package:frontend/features/profile/ui/widgets/settings_section.dart';
+import 'package:frontend/routes/app_routes.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:frontend/features/auth/state/auth_provider.dart';
@@ -48,11 +51,9 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: false,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+       
         title: const Text(
           'Account Settings',
           style: TextStyle(color: Colors.white),
@@ -92,8 +93,8 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Email cannot be changed'),
-                        backgroundColor: Colors.grey,
+                        content: Text('Email cannot be changed', style: TextStyle(color: Colors.white),),
+                        backgroundColor: AppColors.surfaceDark,
                       ),
                     );
                   },
@@ -108,9 +109,9 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
               children: [
                 SettingsItem(
                   title: 'Change Password',
-                  subtitle: 'Last updated 3mo ago',
+                  subtitle: '',
                   icon: Icons.lock,
-                  onTap: () => _showPasswordDialog(context),
+                  onTap: () => context.push(AppRoutes.changePassword),
                 ),
               ],
             ),

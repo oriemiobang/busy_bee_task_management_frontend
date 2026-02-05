@@ -20,7 +20,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  int currentIndex = 0;
+
 
   @override
   void initState() {
@@ -47,9 +47,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+        final taskProvider = context.watch<TasksProvider>();
     return SafeArea(
       child: Scaffold(
-        body: currentIndex == 1? CalendarScreen() : currentIndex == 2? StatsScreen() : currentIndex == 3? AccountSettingsScreen() : Padding(
+        body:  taskProvider.currentIndex  == 1? CalendarScreen() : taskProvider.currentIndex == 2? StatsScreen() : taskProvider.currentIndex == 3? AccountSettingsScreen() : Padding(
           padding: const EdgeInsets.all(10),
           child: Column(
             children: [
@@ -69,7 +70,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const DateSelector(),
               const SizedBox(height: 20),
               
-              // 📋 Tasks header with counter
+              // Tasks header with counter
               Consumer<TasksProvider>(
                 builder: (context, tasksProvider, child) {
                   return Padding(
@@ -111,26 +112,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 10),
               
-              // 📱 Task list with all states
+              //  Task list with all states
               Expanded(
                 child: Consumer<TasksProvider>(
                   builder: (context, tasksProvider, child) {
-                    // 1️⃣ Cache loading state (show skeleton)
+                    // 1️ Cache loading state (show skeleton)
                     if (tasksProvider.isLoadingFromCache && tasksProvider.tasks.isEmpty) {
                       return _buildCacheLoadingState();
                     }
                     
-                    // 2️⃣ Error state
+                    // 2️ Error state
                     if (tasksProvider.error != null && tasksProvider.tasks.isEmpty) {
                       return _buildErrorState(tasksProvider);
                     }
                     
-                    // 3️⃣ Empty state
+                    // 3️ Empty state
                     if (tasksProvider.tasks.isEmpty && !tasksProvider.isLoading) {
                       return _buildEmptyState();
                     }
                     
-                    // 4️⃣ Main task list
+                    // 4️ Main task list
                     return RefreshIndicator(
                       onRefresh: _refreshTasks,
                       child: Column(
@@ -174,14 +175,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
         bottomNavigationBar: CustomBottomNavBar(
-          currentIndex: currentIndex,
-          onTap: (index) => setState(() => currentIndex = index),
+          currentIndex: taskProvider.currentIndex,
+          onTap: (index) => taskProvider.setCurrentIndex(index),
         ),
       ),
     );
   }
 
-  // 🔄 Cache loading state
+  //  Cache loading state
   Widget _buildCacheLoadingState() {
     return const Center(
       child: Column(

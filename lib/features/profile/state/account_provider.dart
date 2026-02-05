@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 // import 'package:frontend/features/account/repository/account_repository.dart';
 import 'package:frontend/features/auth/models/user_model.dart';
+import 'package:frontend/features/dashboard/model/task_model.dart';
 import 'package:frontend/features/profile/data/account_repository.dart';
 
 class AccountProvider with ChangeNotifier {
@@ -9,6 +10,7 @@ class AccountProvider with ChangeNotifier {
   UserModel? _user;
   bool _isLoading = false;
   String? _error;
+
 
   AccountProvider(this._accountRepository) {
     _loadUser();
@@ -27,10 +29,10 @@ class AccountProvider with ChangeNotifier {
 
     try {
       _user = await _accountRepository.getCurrentUser();
-      print('✅ AccountProvider: User loaded - ${_user?.name}');
+      print(' AccountProvider: User loaded - ${_user?.name}');
     } catch (e) {
       _error = 'Failed to load account: ${e.toString()}';
-      print('❌ AccountProvider error: $_error');
+      print(' AccountProvider error: $_error');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -47,10 +49,10 @@ class AccountProvider with ChangeNotifier {
       await _accountRepository.updateUserName(newName);
       // Refresh user data
       await _loadUser();
-      print('✅ Name updated to: $newName');
+      print(' Name updated to: $newName');
     } catch (e) {
       _error = 'Failed to update name: ${e.toString()}';
-      print('❌ AccountProvider error: $_error');
+      print(' AccountProvider error: $_error');
       rethrow;
     } finally {
       _isLoading = false;
@@ -72,16 +74,18 @@ class AccountProvider with ChangeNotifier {
         oldPassword: oldPassword,
         newPassword: newPassword,
       );
-      print('✅ Password updated successfully');
+      print(' Password updated successfully');
     } catch (e) {
       _error = 'Failed to update password: ${e.toString()}';
-      print('❌ AccountProvider error: $_error');
+      print(' AccountProvider error: $_error');
       rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
+
+
 
   // Refresh account data
   Future<void> refresh() async {

@@ -30,6 +30,16 @@ class AuthRepository {
     
     return response;
   }
+
+  Future<AuthResponse> changePassword({required String currentPassword, required String newPassword}) async{
+
+    final response = await _authApi.changePassword(currentPassword: currentPassword,
+     newPassword: newPassword);
+
+     await _saveAuthData(response);
+     return response;
+
+  }
   
   Future<AuthResponse> login({
     required String email,

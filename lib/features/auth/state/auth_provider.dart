@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:frontend/features/auth/data/auth_repository.dart';
 import 'package:frontend/features/auth/models/user_model.dart';
+// import 'package:frontend/features/profile/ui/update_password.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _authRepository;
@@ -21,7 +22,7 @@ class AuthProvider extends ChangeNotifier {
   String? get error => _error;
   bool get isAuthenticated => _user != null;
   
-  // ✅ Helper for UI components (DashboardHeader, etc.)
+  //  Helper for UI components (DashboardHeader, etc.)
   String? get profileImage => _user?.imageUrl ?? _user?.imageUrl;
 
   // Private setters
@@ -49,7 +50,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ✅ Initialize auth state (call at app startup)
+  //  Initialize auth state (call at app startup)
   Future<void> initialize() async {
     if (_isInitialized) return;
     
@@ -65,7 +66,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // ✅ Fixed null safety: user might be null after getCurrentUser()
+  //  Fixed null safety: user might be null after getCurrentUser()
   Future<void> checkAuthStatus() async {
     try {
       _setLoading(true);
@@ -95,7 +96,7 @@ class AuthProvider extends ChangeNotifier {
       _setLoading(false);
       
       if (kDebugMode) {
-        print('❌ Auth check error: $e');
+        print(' Auth check error: $e');
         print('Stack trace: $stackTrace');
       }
       // Don't rethrow - allow app to proceed with guest experience
@@ -111,7 +112,7 @@ class AuthProvider extends ChangeNotifier {
       _setError(null);
       
       if (kDebugMode) {
-        print('🔄 Attempting login for: $email');
+        print(' Attempting login for: $email');
       }
       
       final response = await _authRepository.login(
@@ -120,7 +121,7 @@ class AuthProvider extends ChangeNotifier {
       );
       
       if (kDebugMode) {
-        print('✅ Login successful');
+        print(' Login successful');
         print('User ID: ${response.user.id}');
         print('Has token: ${response.hasTokens}');
       }
@@ -129,12 +130,12 @@ class AuthProvider extends ChangeNotifier {
       _setLoading(false);
       
       if (kDebugMode) {
-        print('🏁 Login process completed');
+        print(' Login process completed');
       }
       
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        print('❌ Login error: $e');
+        print(' Login error: $e');
         print('Stack trace: $stackTrace');
       }
       _setError(e.toString());
@@ -165,13 +166,13 @@ class AuthProvider extends ChangeNotifier {
       );
       
       if (kDebugMode) {
-        print('✅ Registration successful');
+        print(' Registration successful');
         print('User ID: ${response.user.id}');
       }
       
       if (!response.hasTokens) {
         if (kDebugMode) {
-          print('🔄 No tokens from registration, attempting auto-login...');
+          print(' No tokens from registration, attempting auto-login...');
         }
         await login(email: email, password: password);
       } else {
@@ -181,12 +182,12 @@ class AuthProvider extends ChangeNotifier {
       _setLoading(false);
       
       if (kDebugMode) {
-        print('🏁 Registration process completed');
+        print(' Registration process completed');
       }
       
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        print('❌ Registration error: $e');
+        print(' Registration error: $e');
         print('Stack trace: $stackTrace');
       }
       _setError(e.toString());
@@ -203,11 +204,11 @@ class AuthProvider extends ChangeNotifier {
       _setLoading(false);
       
       if (kDebugMode) {
-        print('👋 User logged out successfully');
+        print(' User logged out successfully');
       }
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        print('❌ Logout error: $e');
+        print(' Logout error: $e');
         print('Stack trace: $stackTrace');
       }
       _setError(e.toString());
@@ -226,11 +227,36 @@ class AuthProvider extends ChangeNotifier {
       _setLoading(false);
       
       if (kDebugMode) {
-        print('✅ Forgot password request sent for: $email');
+        print('Forgot password request sent for: $email');
       }
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        print('❌ Forgot password error: $e');
+        print('Forgot password error: $e');
+        print('Stack trace: $stackTrace');
+      }
+      _setError(e.toString());
+      _setLoading(false);
+      rethrow;
+    }
+  }
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword
+  }) async {
+    try {
+      _setLoading(true);
+      _setError(null);
+      
+      await _authRepository.changePassword(currentPassword: currentPassword, newPassword: newPassword);
+      
+      _setLoading(false);
+      
+      if (kDebugMode) {
+        print('You have updated your password successfully');
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('Forgot password error: $e');
         print('Stack trace: $stackTrace');
       }
       _setError(e.toString());

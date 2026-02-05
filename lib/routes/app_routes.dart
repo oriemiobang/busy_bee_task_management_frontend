@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/features/auth/state/auth_provider.dart';
 import 'package:frontend/features/dashboard/ui/dashboard_screen.dart';
+import 'package:frontend/features/profile/ui/update_password.dart';
 // import 'package:frontend/features/dashboard/ui/screens/dashboard_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,7 @@ class AppRoutes {
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
   static const String dashboard = '/dashboard';
+  static const String changePassword = '/account-password';
 
   // ✅ Protected routes (require authentication)
   static final _protectedRoutes = [dashboard];
@@ -28,6 +30,11 @@ class AppRoutes {
       initialLocation: splash,
       redirect: (context, state) => _redirectLogic(context, state),
       routes: [
+        GoRoute(
+          path: changePassword,
+          name: 'account-password',
+          builder: (context, state) => const ChangePassword(),
+        ),
         GoRoute(
           path: splash,
           name: 'splash',

@@ -16,6 +16,7 @@ class TasksProvider extends ChangeNotifier {
   String? _error;
   bool _hasInitialLoad = false;
   bool _isLoadingFromCache = false;
+  int _currentIndex = 0;
 
   // Getters
   List<TaskModel> get tasks => List.unmodifiable(_tasks);
@@ -25,6 +26,7 @@ class TasksProvider extends ChangeNotifier {
   String? get error => _error;
   bool get hasInitialLoad => _hasInitialLoad;
   bool get isLoadingFromCache => _isLoadingFromCache;
+  int get currentIndex => _currentIndex;
 
   // Computed
   List<TaskModel> get todaysTasks => _tasks
@@ -39,6 +41,11 @@ class TasksProvider extends ChangeNotifier {
 
   void _setLoading(bool value) {
     _isLoading = value;
+    notifyListeners();
+  }
+
+  void setCurrentIndex(int val){
+    _currentIndex = val;
     notifyListeners();
   }
 
