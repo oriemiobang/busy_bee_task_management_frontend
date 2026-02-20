@@ -32,7 +32,7 @@ class DashboardHeader extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 image: DecorationImage(
-                  image: AssetImage(userImage),
+                  image: NetworkImage(userImage),
                   fit: BoxFit.cover,
                 ),
               ),

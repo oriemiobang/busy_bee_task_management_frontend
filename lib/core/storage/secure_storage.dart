@@ -11,6 +11,8 @@ class SecureStorage {
   static const String userIdKey = 'user_id';
   static const String userEmailKey = 'user_email';
   static const String userNameKey = 'user_name';
+  static const String userImageKey = 'user_image';
+
   
   // Save tokens and user data
   Future<void> saveAccessToken(String token) async {
@@ -21,15 +23,22 @@ class SecureStorage {
     await _storage.write(key: refreshTokenKey, value: token);
   }
   
-  Future<void> saveUserData({
-    required String userId,
-    required String email,
-    required String name,
-  }) async {
-    await _storage.write(key: userIdKey, value: userId);
-    await _storage.write(key: userEmailKey, value: email);
-    await _storage.write(key: userNameKey, value: name);
-  }
+Future<void> saveUserData({
+  required String userId,
+  required String email,
+  required String name,
+  required String imageUrl,
+}) async {
+  await _storage.write(key: userIdKey, value: userId);
+  await _storage.write(key: userEmailKey, value: email);
+  await _storage.write(key: userNameKey, value: name);
+  await _storage.write(key: userImageKey, value: imageUrl);
+}
+
+Future<String?> getUserImage() async {
+  return await _storage.read(key: userImageKey);
+}
+
   
   // Cache data with timestamp and type
   Future<void> cacheData({

@@ -58,10 +58,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Consumer<AuthProvider>(
                 builder: (context, authProvider, child) {
                   final userName = authProvider.user?.name ?? 'Guest';
+                  print( authProvider.user?.imageUrl);
                   return DashboardHeader(
                     userName: userName,
                     // userImage:  authProvider.user!.imageUrl,
-                    userImage:  'assets/girl1.jpg',
+                    userImage:  authProvider.user?.imageUrl ?? '',
                   );
                 },
               ),

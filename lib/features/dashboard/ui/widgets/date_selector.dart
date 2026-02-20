@@ -7,11 +7,16 @@ class DateSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final today = DateTime.now();
+
+    // 1️ Find the Monday of this week
+    final monday = today.subtract(Duration(days: today.weekday - 1));
+
+    // 2️ Generate 7 days starting from Monday
     final weekDays = List.generate(7, (index) {
-      final now = DateTime.now();
-      final date = now.add(Duration(days: index));
-      final day = DateFormat('EEE').format(date);
-      return '$day ${date.day}';
+      final date = monday.add(Duration(days: index));
+      final day = DateFormat('EEE').format(date); // Mon, Tue, ...
+      return {'date': date, 'label': '$day ${date.day}'};
     });
 
     return SizedBox(
@@ -20,10 +25,13 @@ class DateSelector extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: weekDays.length,
         itemBuilder: (_, index) {
-          final today = DateTime.now();
-          final date = today.add(Duration(days: index));
-          final isToday = date.day == today.day;
-          final parts = weekDays[index].split(' ');
+          final date = weekDays[index]['date'] as DateTime;
+          final label = weekDays[index]['label'] as String;
+          final isToday = date.day == today.day &&
+              date.month == today.month &&
+              date.year == today.year;
+
+          final parts = label.split(' ');
 
           return Padding(
             padding: const EdgeInsets.only(right: 8),

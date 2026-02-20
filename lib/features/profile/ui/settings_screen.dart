@@ -50,6 +50,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        forceMaterialTransparency: true,
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
         elevation: 0,
@@ -93,7 +94,8 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Email cannot be changed', style: TextStyle(color: Colors.white),),
+                        content: Text('Email cannot be changed',
+                        style: TextStyle(color: Colors.white),),
                         backgroundColor: AppColors.surfaceDark,
                       ),
                     );
@@ -122,7 +124,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
               title: 'DANGER ZONE',
               children: [
                 SettingsItem(
-                  title: 'Deactivate Account',
+                  title: 'Log out',
                   icon: Icons.delete,
                   isDangerous: true,
                   onTap: () => _showDeactivateDialog(context),
@@ -154,6 +156,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
 
   void _showNameDialog(BuildContext context) {
     final accountProvider = context.read<AccountProvider>();
+    final authProvider = context.read<AuthProvider>();
     final user = accountProvider.user;
 
     _nameController.text = user?.name ?? '';
@@ -341,12 +344,13 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
   }
 
   void _showDeactivateDialog(BuildContext context) {
+     final authProvider = context.read<AuthProvider>();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.grey[900],
         title: const Text(
-          'Deactivate Account',
+          'Log out',
           style: TextStyle(color: Colors.white),
         ),
         content: const Text(
@@ -363,29 +367,31 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
           ),
           TextButton(
             onPressed: () {
-              // In production, this would call a real API endpoint
+              authProvider.logout();
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Account deactivated successfully'),
+                  content: Text('Account logged out successfully'),
                   backgroundColor: Colors.green,
                 ),
               );
               // Navigate to login screen after deactivation
               Future.delayed(const Duration(seconds: 2), () {
                 if (context.mounted) {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
-                    (route) => false,
-                  );
+
+                  context.go(AppRoutes.login);
+                  // Navigator.pushAndRemoveUntil(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => const LoginScreen(),
+                  //   ),
+                  //   (route) => false,
+                  // );
                 }
               });
             },
             child: const Text(
-              'Deactivate',
+              'Log out',
               style: TextStyle(color: Colors.red),
             ),
           ),

@@ -4,13 +4,19 @@ class TaskModel {
   final String description;
   final DateTime startTime;
   final DateTime? deadline;
-  final int sortOrder;
   final String status;
   final DateTime createdAt;
   final DateTime updatedAt;
   final int userId;
   final List<SubTaskModel> subTasks;
   final TaskUser? user;
+  
+  // ✅ RECURRENCE FIELDS (matching Prisma schema)
+  final String? recurrenceType;        // 'ONCE', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'
+  final int? recurrenceInterval;       // Every X days/weeks/months
+  final List<String>? recurrenceDays;  // ['MON', 'WED', 'FRI'] for weekly
+  final int? recurrenceDayOfMonth;     // 1-31 for monthly
+  final DateTime? recurrenceEndDate;   // Optional end date
 
   TaskModel({
     required this.id,
@@ -18,35 +24,70 @@ class TaskModel {
     required this.description,
     required this.startTime,
     this.deadline,
-    required this.sortOrder,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
     required this.userId,
     required this.subTasks,
     this.user,
+    // ✅ RECURRENCE PARAMETERS
+    this.recurrenceType,
+    this.recurrenceInterval,
+    this.recurrenceDays,
+    this.recurrenceDayOfMonth,
+    this.recurrenceEndDate,
   });
+
+
+
+  static List<String>? _parseStringList(dynamic value) {
+    if (value == null) return null;
+    if (value is! List) return null;
+    
+    try {
+      return value.map((e) => e.toString()).toList();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    try {
+      return DateTime.parse(value.toString());
+    } catch (e) {
+      return null;
+    }
+  }
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-      startTime: DateTime.parse(json['start_time']),
-      deadline: json['deadline'] != null
-          ? DateTime.parse(json['deadline'])
-          : null,
-      sortOrder: json['sort_order'],
-      status: json['status'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      userId: json['userId'],
-      subTasks: (json['subTask'] as List? ?? [])
-          .map((e) => SubTaskModel.fromJson(e))
+      id: json['id'] ?? 0,
+      title: json['title'] ?? 'Untitled Task',
+      description: json['description'] ?? '',
+      startTime: _parseDateTime(json['start_time']) ?? DateTime.now(),
+      deadline: _parseDateTime(json['deadline']),
+      status: json['status'] ?? 'UPCOMING',
+      createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
+      updatedAt: _parseDateTime(json['updatedAt']) ?? DateTime.now(),
+      userId: json['userId'] ?? json['user_id'] ?? 0,
+      
+      // ✅ CRITICAL FIX: Safe subtask parsing (handles empty arrays)
+      subTasks: (json['subTasks'] as List? ?? json['subTask'] as List? ?? [])
+          .where((e) => e != null)
+          .map((e) => SubTaskModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      
       user: json['user'] != null
-          ? TaskUser.fromJson(json['user'])
+          ? TaskUser.fromJson(json['user'] as Map<String, dynamic>)
           : null,
+      
+      // ✅ CRITICAL FIX: Safe recurrenceDays parsing
+      recurrenceType: json['recurrenceType'] ?? json['recurrence_type'],
+      recurrenceInterval: json['recurrenceInterval'] ?? json['recurrence_interval'],
+      recurrenceDays: _parseStringList(json['recurrenceDays'] ?? json['recurrence_days']),
+      recurrenceDayOfMonth: json['recurrenceDayOfMonth'] ?? json['recurrence_day_of_month'],
+      recurrenceEndDate: _parseDateTime(json['recurrenceEndDate'] ?? json['recurrence_end_date']),
     );
   }
 
@@ -55,25 +96,37 @@ class TaskModel {
         'title': title,
         'description': description,
         'start_time': startTime.toIso8601String(),
-        'deadline': deadline?.toIso8601String(),
-        'sort_order': sortOrder,
+        if (deadline != null) 'deadline': deadline!.toIso8601String(),
         'status': status,
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
         'userId': userId,
         'subTask': subTasks.map((s) => s.toJson()).toList(),
-        'user': user?.toJson(),
+        if (user != null) 'user': user!.toJson(),
+        
+        // ✅ INCLUDE RECURRENCE FIELDS IF SET
+        if (recurrenceType != null) 'recurrenceType': recurrenceType,
+        if (recurrenceInterval != null) 'recurrenceInterval': recurrenceInterval,
+        if (recurrenceDays != null && recurrenceDays!.isNotEmpty) 
+          'recurrenceDays': recurrenceDays,
+        if (recurrenceDayOfMonth != null) 'recurrenceDayOfMonth': recurrenceDayOfMonth,
+        if (recurrenceEndDate != null) 
+          'recurrenceEndDate': recurrenceEndDate!.toIso8601String(),
       };
 
-  /// Needed for cache & optimistic updates
   TaskModel copyWith({
     String? title,
     String? description,
     DateTime? startTime,
     DateTime? deadline,
-    int? sortOrder,
     String? status,
     List<SubTaskModel>? subTasks,
+    // ✅ RECURRENCE PARAMETERS
+    String? recurrenceType,
+    int? recurrenceInterval,
+    List<String>? recurrenceDays,
+    int? recurrenceDayOfMonth,
+    DateTime? recurrenceEndDate,
   }) {
     return TaskModel(
       id: id,
@@ -81,29 +134,49 @@ class TaskModel {
       description: description ?? this.description,
       startTime: startTime ?? this.startTime,
       deadline: deadline ?? this.deadline,
-      sortOrder: sortOrder ?? this.sortOrder,
       status: status ?? this.status,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
       userId: userId,
       subTasks: subTasks ?? this.subTasks,
       user: user,
+      
+      // ✅ PRESERVE RECURRENCE FIELDS
+      recurrenceType: recurrenceType ?? this.recurrenceType,
+      recurrenceInterval: recurrenceInterval ?? this.recurrenceInterval,
+      recurrenceDays: recurrenceDays ?? this.recurrenceDays,
+      recurrenceDayOfMonth: recurrenceDayOfMonth ?? this.recurrenceDayOfMonth,
+      recurrenceEndDate: recurrenceEndDate ?? this.recurrenceEndDate,
     );
   }
 
-  /// 🔹 Helpers
+  // Helpers
   bool get isCompleted => status == 'COMPLETED';
+  int get completedSubTasksCount => subTasks.where((s) => s.isDone).length;
+  bool get areAllSubTasksDone => subTasks.isNotEmpty && subTasks.every((s) => s.isDone);
+  double get completionPercentage => subTasks.isEmpty ? 0 : completedSubTasksCount / subTasks.length * 100;
 
-  int get completedSubTasksCount =>
-      subTasks.where((s) => s.isDone).length;
+  // ✅ RECURRENCE HELPER: Human-readable description
+  String get recurrenceDescription {
+    if (recurrenceType == null || recurrenceType == 'ONCE') return 'Does not repeat';
+    
+    switch (recurrenceType) {
+      case 'DAILY':
+        return 'Every ${recurrenceInterval ?? 1} day${(recurrenceInterval ?? 1) > 1 ? 's' : ''}';
+      case 'WEEKLY':
+        if (recurrenceDays == null || recurrenceDays!.isEmpty) return 'Every week';
+        final days = recurrenceDays!.map((d) => d.substring(0, 1)).join(', ');
+        return 'Every ${recurrenceInterval ?? 1} week${(recurrenceInterval ?? 1) > 1 ? 's' : ''} on $days';
+      case 'MONTHLY':
+        return 'Day ${recurrenceDayOfMonth ?? 1} of every month';
+      case 'YEARLY':
+        return 'Every year';
+      default:
+        return 'Custom recurrence';
+    }
+  }
 
-  bool get areAllSubTasksDone =>
-      subTasks.isNotEmpty && subTasks.every((s) => s.isDone);
 
-  double get completionPercentage =>
-      subTasks.isEmpty
-          ? 0
-          : completedSubTasksCount / subTasks.length * 100;
 }
 class SubTaskModel {
   final int id;
@@ -124,14 +197,12 @@ class SubTaskModel {
 
   factory SubTaskModel.fromJson(Map<String, dynamic> json) {
     return SubTaskModel(
-      id: json['id'],
-      title: json['title'],
-      isDone: json['isDone'] ?? false,
-      taskId: json['taskId'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'])
-          : null,
+      id: json['id'] ?? 0,
+      title: json['title'] ?? 'Untitled Subtask',
+      isDone: json['isDone'] ?? json['is_done'] ?? false,
+      taskId: json['taskId'] ?? json['task_id'] ?? 0,
+      createdAt: TaskModel._parseDateTime(json['createdAt']) ?? DateTime.now(),
+      updatedAt: TaskModel._parseDateTime(json['updatedAt']),
     );
   }
 

@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/features/auth/state/auth_provider.dart';
+import 'package:frontend/features/dashboard/ui/add_task.dart';
 import 'package:frontend/features/dashboard/ui/dashboard_screen.dart';
 import 'package:frontend/features/profile/ui/update_password.dart';
 // import 'package:frontend/features/dashboard/ui/screens/dashboard_screen.dart';
@@ -19,10 +20,13 @@ class AppRoutes {
   static const String dashboard = '/dashboard';
   static const String changePassword = '/account-password';
 
-  // ✅ Protected routes (require authentication)
+static const String newTask = '/tasks/new';
+static const String editTask = '/tasks/:id/edit';
+
+  // Protected routes (require authentication)
   static final _protectedRoutes = [dashboard];
   
-  // ✅ Auth routes (should NOT redirect when user is ON these screens)
+  //  Auth routes (should NOT redirect when user is ON these screens)
   static final _authRoutes = [login, register, forgotPassword];
 
   static GoRouter router(BuildContext context) {
@@ -59,6 +63,19 @@ class AppRoutes {
           path: dashboard,
           name: 'dashboard',
           builder: (context, state) => const DashboardScreen(),
+        ),
+
+        GoRoute(
+          path: newTask,
+          name: 'newTask',
+          builder: (context, state) => const NewTaskScreen(),
+        ),
+        GoRoute(
+          path: editTask,
+          name: 'editTask',
+          builder: (context, state) => NewTaskScreen(
+            taskId: int.parse(state.pathParameters['id']!),
+          ),
         ),
       ],
       errorBuilder: (context, state) => _ErrorScreen(state: state),

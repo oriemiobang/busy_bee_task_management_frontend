@@ -105,7 +105,7 @@ class TasksProvider extends ChangeNotifier {
       if (index == -1) return;
 
       final task = _tasks[index];
-      final newStatus = task.isCompleted ? 'PROGRES' : 'COMPLETED';
+      final newStatus = task.isCompleted ? 'PROGRESS' : 'COMPLETED';
 
       final updatedTask = await _tasksRepository.updateTaskStatus(
         taskId: taskId,
@@ -189,8 +189,157 @@ Future<void> toggleSubTaskStatus({
 }
 
 
+// ADD THESE IMPORTS AT TOP
 
-  // ───────────────────────── Stats ─────────────────────────
+
+// REPLACE createTask method with resilient version
+Future<TaskModel> createTask({
+  required String title,
+  required String description,
+  required DateTime startTime,
+  DateTime? deadline,
+  List<SubTaskModel> subTasks = const [],
+  String status = 'PROGRESS',
+  String? recurrenceType,
+  int? recurrenceInterval,
+  List<String>? recurrenceDays,
+  int? recurrenceDayOfMonth,
+  DateTime? recurrenceEndDate,
+}) async {
+  _setLoading(true);
+  _setError(null);
+
+  try {
+    // ✅ 1. Create task via repository
+    final task = await _tasksRepository.createTask(
+      title: title,
+      description: description,
+      startTime: startTime,
+      deadline: deadline,
+      subTasks: subTasks,
+      status: status,
+      recurrenceType: recurrenceType,
+      recurrenceInterval: recurrenceInterval,
+      recurrenceDays: recurrenceDays,
+      recurrenceDayOfMonth: recurrenceDayOfMonth,
+      recurrenceEndDate: recurrenceEndDate,
+    );
+
+    // ✅ 2. Optimistically add to local state (before parsing validation)
+    _tasks.add(task);
+    _setLoading(false);
+    
+    // ✅ 3. Show success AFTER task is in state (even if parsing has minor issues)
+    // This ensures UI updates immediately while we handle edge cases gracefully
+    notifyListeners();
+    
+    return task;
+  } catch (e) {
+    _setError('Failed to create task: ${e.toString()}');
+    _setLoading(false);
+    
+    // ✅ 4. Still notify listeners so UI can show error state
+    notifyListeners();
+    rethrow;
+  }
+}
+// REPLACE updateTask method (fully updated with recurrence)
+Future<TaskModel> updateTask({
+  required int taskId,
+  String? title,
+  String? description,
+  DateTime? startTime,
+  DateTime? deadline,
+  List<SubTaskModel>? subTasks,
+  String? status,
+  // ✅ RECURRENCE PARAMETERS
+  String? recurrenceType,
+  int? recurrenceInterval,
+  List<String>? recurrenceDays,
+  int? recurrenceDayOfMonth,
+  DateTime? recurrenceEndDate,
+}) async {
+  try {
+    _setLoading(true);
+    _setError(null);
+    
+    final updatedTask = await _tasksRepository.updateTask(
+      taskId: taskId,
+      title: title,
+      description: description,
+      startTime: startTime,
+      deadline: deadline,
+      subTasks: subTasks,
+      status: status,
+      // ✅ PASS RECURRENCE DATA TO REPOSITORY
+      recurrenceType: recurrenceType,
+      recurrenceInterval: recurrenceInterval,
+      recurrenceDays: recurrenceDays,
+      recurrenceDayOfMonth: recurrenceDayOfMonth,
+      recurrenceEndDate: recurrenceEndDate,
+    );
+    
+    // Update local state
+    final index = _tasks.indexWhere((t) => t.id == taskId);
+    if (index != -1) {
+      _tasks[index] = updatedTask;
+    }
+    
+    _setLoading(false);
+    notifyListeners();
+    
+    return updatedTask;
+  } catch (e) {
+    _setError('Failed to update task: ${e.toString()}');
+    _setLoading(false);
+    rethrow;
+  }
+}
+
+// // REPLACE updateTask method
+// Future<TaskModel> updateTask({
+//   required int taskId,
+//   String? title,
+//   String? description,
+//   DateTime? startTime,
+//   DateTime? deadline,
+//   List<SubTaskModel>? subTasks,
+//   String? status,
+// }) async {
+//   try {
+//     _setLoading(true);
+//     _setError(null);
+    
+//     final updatedTask = await _tasksRepository.updateTask(
+//       taskId: taskId,
+//       title: title,
+//       description: description,
+//       startTime: startTime,
+//       deadline: deadline,
+//       subTasks: subTasks,
+//       status: status,
+//     );
+    
+//     // Update local state
+//     final index = _tasks.indexWhere((t) => t.id == taskId);
+//     if (index != -1) {
+//       _tasks[index] = updatedTask;
+//     }
+    
+//     _setLoading(false);
+//     notifyListeners();
+    
+//     return updatedTask;
+//   } catch (e) {
+//     _setError(e.toString());
+//     _setLoading(false);
+//     rethrow;
+//   }
+// }
+
+
+
+  // ─────── ───────────────── Stats ─────────────────────────
 
   // Future<void> fetchTaskStats() async {
   //   try {

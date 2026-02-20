@@ -32,8 +32,8 @@ class ProfileHeader extends StatelessWidget {
                 shape: BoxShape.circle,
                 image: user?.imageUrl != null
                     ? DecorationImage(
-                        // image: NetworkImage(user!.imageUrl!),
-                        image: AssetImage('assets/girl1.jpg'),
+                        image: NetworkImage(user!.imageUrl!),
+                        // image: AssetImage('assets/girl1.jpg'),
                         fit: BoxFit.cover,
                       )
                     : null,

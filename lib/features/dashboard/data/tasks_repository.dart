@@ -147,32 +147,44 @@ Future<TaskModel> updateSubTask({
   //   }
   // }
 
-  Future<TaskModel> createTask({
-    required String title,
-    required String description,
-    required DateTime startTime,
-    required DateTime deadline,
-    List<Map<String, dynamic>>? subTasks,
-  }) async {
-    try {
-      final task = await _tasksApi.createTask(
-        title: title,
-        description: description,
-        startTime: startTime,
-        deadline: deadline,
-        subTasks: subTasks,
-      );
-      
-      // Add new task to cache
-      await _addTaskToCache(task);
-      
-      return task;
-    } catch (e) {
-      print('Error creating task: $e');
-      rethrow;
-    }
-  }
 
+Future<TaskModel> createTask({
+  required String title,
+  required String description,
+  required DateTime startTime,
+  DateTime? deadline,
+  List<SubTaskModel> subTasks = const [],
+  String status = 'PROGRESS',
+  // ✅ RECURRENCE PARAMETERS
+  String? recurrenceType,
+  int? recurrenceInterval,
+  List<String>? recurrenceDays,
+  int? recurrenceDayOfMonth,
+  DateTime? recurrenceEndDate,
+}) async {
+  try {
+    final task = await _tasksApi.createTask(
+      title: title,
+      description: description,
+      startTime: startTime,
+      deadline: deadline,
+      subTasks: subTasks,
+      status: status,
+      // ✅ PASS TO API
+      recurrenceType: recurrenceType,
+      recurrenceInterval: recurrenceInterval,
+      recurrenceDays: recurrenceDays,
+      recurrenceDayOfMonth: recurrenceDayOfMonth,
+      recurrenceEndDate: recurrenceEndDate,
+    );
+    
+    await _addTaskToCache(task);
+    return task;
+  } catch (e) {
+    print('Error creating task: $e');
+    rethrow;
+  }
+}
 
   // Future<void> deleteTask(taskId){
   //   try {
@@ -404,6 +416,48 @@ Future<TaskModel> updateSubTask({
       print('Error updating subtask in cache: $e');
     }
   }
+
+
+
+Future<TaskModel> updateTask({
+  required int taskId,
+  String? title,
+  String? description,
+  DateTime? startTime,
+  DateTime? deadline,
+  List<SubTaskModel>? subTasks,
+  String? status,
+  // ✅ RECURRENCE PARAMETERS
+  String? recurrenceType,
+  int? recurrenceInterval,
+  List<String>? recurrenceDays,
+  int? recurrenceDayOfMonth,
+  DateTime? recurrenceEndDate,
+}) async {
+  try {
+    final task = await _tasksApi.updateTask(
+      taskId: taskId,
+      title: title,
+      description: description,
+      startTime: startTime,
+      deadline: deadline,
+      subTasks: subTasks,
+      status: status,
+      // ✅ PASS TO API
+      recurrenceType: recurrenceType,
+      recurrenceInterval: recurrenceInterval,
+      recurrenceDays: recurrenceDays,
+      recurrenceDayOfMonth: recurrenceDayOfMonth,
+      recurrenceEndDate: recurrenceEndDate,
+    );
+    
+    await _updateTaskInCache(task);
+    return task;
+  } catch (e) {
+    print('Error updating task: $e');
+    rethrow;
+  }
+}
 
   // Future<void> _cacheTaskStats(TaskStats stats) async {
   //   try {

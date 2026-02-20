@@ -27,12 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
     // final authProvider = appProvider.authProvider;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios),
-        ),
-      ),
+
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -158,10 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
-                          // Navigator.pushNamed(
-                          //   context,
-                          //   AppRoutes.forgotPassword,
-                          // );
+                          context.go(AppRoutes.login);
                         },
                         child: Text(
                           'Forgot Password?',
@@ -224,11 +216,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                       password: _passwordController.text,
                                       
                                     );
-                                    Navigator.pushReplacementNamed(
-                                      context,
-                                      AppRoutes.dashboard,
-                                    );
+                                    context.go(AppRoutes.login);
+                                   
                                   } catch (e) {
+                                    print('Login error: $e');
                                     // Error handled in provider
                                   }
                                 }
@@ -320,7 +311,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           onTap: authProvider.isLoading
                               ? null
                               : () {
-                                NavigationService.goToRegister();
+                                // NavigationService.goToRegister();
+                                context.go(AppRoutes.register);
                                 //  final router = GoRouter.of(context);
                                 //  router.goNamed(AppRoutes.register);
                                 //   Navigator.pushNamed(

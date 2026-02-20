@@ -73,32 +73,36 @@ class AuthRepository {
     return token != null && token.isNotEmpty;
   }
   
-  Future<UserModel?> getCurrentUser() async {
-    final userId = await _secureStorage.getUserId();
-    final email = await _secureStorage.getUserEmail();
-    final name = await _secureStorage.getUserName();
+Future<UserModel?> getCurrentUser() async {
+  final userId = await _secureStorage.getUserId();
+  final email = await _secureStorage.getUserEmail();
+  final name = await _secureStorage.getUserName();
+  final imageUrl = await _secureStorage.getUserImage();
 
-    
-    if (userId == null || email == null || name == null) {
-      return null;
-    }
-    
-    return UserModel(
-      id: userId,
-      name: name,
-      imageUrl: '',
-      email: email, authProvider: 'LOCAL',
-      // auth_provider:auth_provider
-    );
+  if (userId == null || email == null || name == null) {
+    return null;
   }
+
+  return UserModel(
+    id: userId,
+    name: name,
+    email: email,
+    imageUrl: imageUrl ?? '',
+    authProvider: 'LOCAL',
+  );
+}
+
   
-  Future<void> _saveAuthData(AuthResponse response) async {
-    await _secureStorage.saveAccessToken(response.accessToken);
-    await _secureStorage.saveRefreshToken(response.refreshToken);
-    await _secureStorage.saveUserData(
-      userId: response.user.id,
-      email: response.user.email,
-      name: response.user.name,
-    );
-  }
+Future<void> _saveAuthData(AuthResponse response) async {
+  await _secureStorage.saveAccessToken(response.accessToken);
+  await _secureStorage.saveRefreshToken(response.refreshToken);
+
+  await _secureStorage.saveUserData(
+    userId: response.user.id,
+    email: response.user.email,
+    name: response.user.name,
+    imageUrl: response.user.imageUrl,
+  );
+}
+
 }

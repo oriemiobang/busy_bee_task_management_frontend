@@ -30,7 +30,7 @@ class _StatsScreenState extends State<StatsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBar(forceMaterialTransparency: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -77,7 +77,7 @@ class _StatsScreenState extends State<StatsScreen> {
               _buildStatsGrid(context),
               
               // Detailed history
-              _buildDetailedHistory(),
+              // _buildDetailedHistory(),
             ],
           ),
         ),
@@ -179,35 +179,35 @@ Widget _buildStatsGrid(BuildContext context) {
   );
 }
 
-  Widget _buildDetailedHistory() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      child: TextButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Detailed history feature coming soon!'),
-            ),
-          );
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'View detailed history',
-              style: TextStyle(
-                color: Colors.blue,
-                fontSize: 16,
-              ),
-            ),
-            const Icon(
-              Icons.arrow_forward,
-              color: Colors.blue,
-              size: 16,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildDetailedHistory() {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(vertical: 24),
+  //     child: TextButton(
+  //       onPressed: () {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           const SnackBar(
+  //             content: Text('Detailed history feature coming soon!'),
+  //           ),
+  //         );
+  //       },
+  //       child: Row(
+  //         mainAxisAlignment: MainAxisAlignment.center,
+  //         children: [
+  //           const Text(
+  //             'View detailed history',
+  //             style: TextStyle(
+  //               color: Colors.blue,
+  //               fontSize: 16,
+  //             ),
+  //           ),
+  //           const Icon(
+  //             Icons.arrow_forward,
+  //             color: Colors.blue,
+  //             size: 16,
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 }

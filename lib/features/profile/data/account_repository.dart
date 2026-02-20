@@ -24,12 +24,14 @@ class AccountRepository {
       // 2. Update stored user data
       final userId = await _secureStorage.getUserId();
       final email = await _secureStorage.getUserEmail();
+      final image = await _secureStorage.getUserImage();
       
       if (userId != null && email != null) {
         await _secureStorage.saveUserData(
           userId: userId,
           email: email,
           name: newName,
+          imageUrl: image!
         );
       }
       

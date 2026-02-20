@@ -73,16 +73,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final isLoading = authProvider.isLoading;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            // final router = GoRouter.of(context);
-            // router.pop();
-            NavigationService.goBack();
-          },
-          icon: const Icon(Icons.arrow_back_ios),
-        ),
-      ),
+      // appBar: AppBar(
+      //   leading: IconButton(
+      //     onPressed: () {
+      //       // final router = GoRouter.of(context);
+      //       // router.pop();
+      //       NavigationService.goBack();
+      //     },
+      //     icon: const Icon(Icons.arrow_back_ios),
+      //   ),
+      // ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -455,7 +455,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ? null
                               : () {
                                   //  final router = GoRouter.of(context);
-                                   NavigationService.goToLogin();
+                                  //  NavigationService.goToLogin();
+                                   context.go(AppRoutes.login);
                                   //  router.pushNamed(AppRoutes.login);
                                 },
                           child: Text(

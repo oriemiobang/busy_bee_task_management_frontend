@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/constants/colors.dart';
+import 'package:frontend/routes/app_routes.dart';
+import 'package:go_router/go_router.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -41,29 +43,29 @@ class CustomBottomNavBar extends StatelessWidget {
      Positioned(
   top: -35,
   left: MediaQuery.of(context).size.width / 2 - 30,
-  child: Container(
-    height: 70,
-    width: 70,
-    decoration: BoxDecoration(
-      color: AppColors.primary,
-      shape: BoxShape.circle,
-      border: Border.all(
-        color: Colors.black, 
-        width: 5,
+  child: GestureDetector(
+    onTap: () => context.push(AppRoutes.newTask),
+    child: Container(
+      height: 70,
+      width: 70,
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: Colors.black, 
+          width: 5,
+        ),
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: AppColors.primary,
+        //     blurRadius: 5,
+        //     offset: Offset(0, 3),
+        //   ),
+        // ],
       ),
-      // boxShadow: [
-      //   BoxShadow(
-      //     color: AppColors.primary,
-      //     blurRadius: 5,
-      //     offset: Offset(0, 3),
-      //   ),
-      // ],
-    ),
-    child: IconButton(
-      icon: const Icon(Icons.add, size: 30, color: Colors.white),
-      onPressed: () {
-     
-      },
+      child: Icon(
+     Icons.add, size: 30, color: Colors.white),
+      
     ),
   ),
 ),

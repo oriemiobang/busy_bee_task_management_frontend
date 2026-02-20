@@ -97,6 +97,7 @@ class _ChangePasswordState extends State<ChangePassword> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        forceMaterialTransparency: true,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),

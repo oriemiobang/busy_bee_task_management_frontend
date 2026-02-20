@@ -133,30 +133,138 @@ Future<TaskModel> updateSubTask({
     }
   }
 
-  Future<TaskModel> createTask({
-    required String title,
-    required String description,
-    required DateTime startTime,
-    required DateTime deadline,
-    List<Map<String, dynamic>>? subTasks,
-  }) async {
-    try {
-      final response = await _dioClient.dio.post(
-        ApiEndpoints.tasks,
-        data: {
-          'title': title,
-          'description': description,
-          'start_time': startTime.toIso8601String(),
-          'deadline': deadline.toIso8601String(),
-          if (subTasks != null) 'subTasks': subTasks,
-        },
-      );
+// REPLACE your createTask method with this FIXED version
+// REPLACE createTask method
+// REPLACE createTask method
+Future<TaskModel> createTask({
+  required String title,
+  required String description,
+  required DateTime startTime,
+  DateTime? deadline,
+  List<SubTaskModel> subTasks = const [],
+  String status = 'PROGRESS',
+  String? recurrenceType,
+  int? recurrenceInterval,
+  List<String>? recurrenceDays,
+  int? recurrenceDayOfMonth,
+  DateTime? recurrenceEndDate,
+}) async {
+  try {
+    // ✅ CRITICAL: Backend expects SINGULAR "subTask" field with specific structure
+    final subTaskPayload = subTasks.map((s) => {
+      'title': s.title,
+      'isDone': s.isDone, // ✅ Must be boolean (not null)
+    }).toList();
 
-      return TaskModel.fromJson(response.data);
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
+    final response = await _dioClient.dio.post(
+      ApiEndpoints.addTask,
+      data: {
+        'title': title,
+        'description': description,
+        'start_time': startTime.toIso8601String(),
+        if (deadline != null) 'deadline': deadline.toIso8601String(),
+        'status': status,
+        'sort_order': 1, // Required by backend
+        
+        // ✅ RECURRENCE FIELDS (match Prisma schema exactly)
+        if (recurrenceType != null) 'recurrenceType': recurrenceType,
+        if (recurrenceInterval != null) 'recurrenceInterval': recurrenceInterval,
+        if (recurrenceDays != null && recurrenceDays.isNotEmpty) 
+          'recurrenceDays': recurrenceDays,
+        if (recurrenceDayOfMonth != null) 'recurrenceDayOfMonth': recurrenceDayOfMonth,
+        if (recurrenceEndDate != null) 
+          'recurrenceEndDate': recurrenceEndDate.toIso8601String(),
+        
+        // ✅ SUBTASKS: Singular field name + proper structure
+        'subTask': subTaskPayload, // NOT 'subTasks'!
+      },
+    );
+
+    return TaskModel.fromJson(response.data);
+  } on DioException catch (e) {
+    throw _handleError(e);
   }
+}
+// REPLACE updateTask method
+Future<TaskModel> updateTask({
+  required int taskId,
+  String? title,
+  String? description,
+  DateTime? startTime,
+  DateTime? deadline,
+  List<SubTaskModel>? subTasks,
+  String? status,
+  // ✅ RECURRENCE PARAMETERS
+  String? recurrenceType,
+  int? recurrenceInterval,
+  List<String>? recurrenceDays,
+  int? recurrenceDayOfMonth,
+  DateTime? recurrenceEndDate,
+}) async {
+  try {
+    final data = <String, dynamic>{};
+    
+    if (title != null) data['title'] = title;
+    if (description != null) data['description'] = description;
+    if (startTime != null) data['start_time'] = startTime.toIso8601String();
+    if (deadline != null) data['deadline'] = deadline.toIso8601String();
+    if (status != null) data['status'] = status;
+    
+    // ✅ CONDITIONALLY ADD RECURRENCE FIELDS
+    if (recurrenceType != null) data['recurrenceType'] = recurrenceType;
+    if (recurrenceInterval != null) data['recurrenceInterval'] = recurrenceInterval;
+    if (recurrenceDays != null) data['recurrenceDays'] = recurrenceDays;
+    if (recurrenceDayOfMonth != null) data['recurrenceDayOfMonth'] = recurrenceDayOfMonth;
+    if (recurrenceEndDate != null) {
+      data['recurrenceEndDate'] = recurrenceEndDate.toIso8601String();
+    }
+    
+    // Subtasks update
+    if (subTasks != null) {
+      data['subTask'] = subTasks.map((s) => {
+        'id': s.id,
+        'title': s.title,
+        'isDone': s.isDone,
+      }).toList();
+    }
+
+    final response = await _dioClient.dio.patch(
+      '${ApiEndpoints.tasks}/$taskId',
+      data: data,
+    );
+
+    return TaskModel.fromJson(response.data);
+  } on DioException catch (e) {
+    throw _handleError(e);
+  }
+}
+
+//  CRITICAL FIX: Handle array error messages from backend
+String _handleError(DioException e) {
+  if (e.response != null) {
+    final errorData = e.response!.data;
+    
+    // Handle array messages (backend returns ["error1", "error2"])
+    if (errorData is Map<String, dynamic>) {
+      final message = errorData['message'];
+      
+      if (message is String) {
+        return message;
+      } else if (message is List) {
+        // Join validation errors into readable string
+        return message.map((e) => e.toString()).join(', ');
+      }
+      
+      return errorData['error']?.toString() ?? 'Request failed';
+    }
+    
+    return e.response!.statusMessage ?? 'Request failed';
+  }
+  
+  return e.message ?? 'Network error';
+}
+
+
 
   Future<TaskModel> updateTaskStatus({
     required int taskId,
@@ -211,14 +319,5 @@ Future<TaskModel> updateSubTask({
     }
   }
 
-  String _handleError(DioException e) {
-    if (e.response != null) {
-      final errorData = e.response!.data;
-      if (errorData is Map<String, dynamic>) {
-        return errorData['message'] ?? errorData['error'] ?? 'An error occurred';
-      }
-      return e.response!.statusMessage ?? 'An error occurred';
-    }
-    return e.message ?? 'Network error occurred';
-  }
+
 }

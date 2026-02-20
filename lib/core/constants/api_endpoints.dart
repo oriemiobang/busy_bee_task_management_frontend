@@ -2,7 +2,8 @@ class ApiEndpoints {
   // For Android Emulator: 'http://10.0.2.2:3000/api'
   // For iOS Simulator: 'http://localhost:3000/api'
   // For Physical Device: 'http://YOUR_COMPUTER_IP:3000/api'
-static const String baseUrl = 'http://10.232.89.65:3000';
+// static const String baseUrl = 'http://10.232.89.65:3000';
+static const String baseUrl = 'https://busy-bee-task-management-api.onrender.com';
 // static const String baseUrl = 'http://10.0.2.2:3000';
   
   // Auth endpoints
@@ -13,9 +14,10 @@ static const String baseUrl = 'http://10.232.89.65:3000';
   static const String forgotPassword = '/auth/forgot-password';
   static const String resetPassword = '/auth/reset-password';
   static const String delete = '/tasks/delete-task';
-  static  String updateSubTask(String taskId, String subTaskId) => 'http://localhost:3000/tasks/update-subTask/$taskId/subtask/$subTaskId';
+  static  String updateSubTask(String taskId, String subTaskId) => 'https://busy-bee-task-management-api.onrender.com/tasks/update-subTask/$taskId/subtask/$subTaskId';
   // Add this to your existing ApiEndpoints class
 static const String productivityStats = '/analytics/dashboard';
+static const String addTask = '/tasks/add-task';
 
 // Add these to your existing ApiEndpoints class
 static const String user = '/user';

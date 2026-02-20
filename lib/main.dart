@@ -67,8 +67,12 @@ void main() {
         AccountApi(context.read<DioClient>()),
         context.read<AuthRepository>(),
         context.read<SecureStorage>(),
-      )),
+      ),),
     ),
+
+
+    // In main.dart
+
       ],
       child: const MyApp(),
     ),
@@ -80,7 +84,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ CRITICAL: Create router HERE where context has providers
+    //  CRITICAL: Create router HERE where context has providers
     final router = AppRoutes.router(context);
 
     

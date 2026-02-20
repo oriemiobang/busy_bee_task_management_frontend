@@ -124,6 +124,7 @@ class AuthProvider extends ChangeNotifier {
         print(' Login successful');
         print('User ID: ${response.user.id}');
         print('Has token: ${response.hasTokens}');
+        print('image url: ${response.user.imageUrl}');
       }
       
       _setUser(response.user);
