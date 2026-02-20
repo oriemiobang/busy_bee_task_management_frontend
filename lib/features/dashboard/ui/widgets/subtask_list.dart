@@ -3,14 +3,14 @@ import 'package:frontend/core/constants/colors.dart';
 import 'package:frontend/features/dashboard/model/task_model.dart';
 
 class SubTasksList extends StatefulWidget {
-  final List<SubTaskModel> subTasks;
+  final List<SubTaskModel> subtasks;
   final Function(int, SubTaskModel) onSubTaskChanged;
   final Function(SubTaskModel) onSubTaskAdded;
   final Function(int) onSubTaskRemoved;
 
   const SubTasksList({
     super.key,
-    required this.subTasks,
+    required this.subtasks,
     required this.onSubTaskChanged,
     required this.onSubTaskAdded,
     required this.onSubTaskRemoved,
@@ -83,7 +83,7 @@ class _SubTasksListState extends State<SubTasksList> {
         const SizedBox(height: 8),
         
         // Sub-tasks list
-        if (widget.subTasks.isEmpty)
+        if (widget.subtasks.isEmpty)
           const Text(
             'No sub-tasks yet',
             style: TextStyle(
@@ -91,7 +91,7 @@ class _SubTasksListState extends State<SubTasksList> {
               color: Colors.grey,
             ),
           ),
-        ...widget.subTasks.map((subTask) => _buildSubTaskItem(subTask)),
+        ...widget.subtasks.map((subTask) => _buildSubTaskItem(subTask)),
         
         // Add new sub-task field
         Padding(

@@ -141,7 +141,7 @@ Future<TaskModel> createTask({
   required String description,
   required DateTime startTime,
   DateTime? deadline,
-  List<SubTaskModel> subTasks = const [],
+ required List<SubTaskModel> subtasks,
   String status = 'PROGRESS',
   String? recurrenceType,
   int? recurrenceInterval,
@@ -151,7 +151,7 @@ Future<TaskModel> createTask({
 }) async {
   try {
     // ✅ CRITICAL: Backend expects SINGULAR "subTask" field with specific structure
-    final subTaskPayload = subTasks.map((s) => {
+    final subTaskPayload = subtasks.map((s) => {
       'title': s.title,
       'isDone': s.isDone, // ✅ Must be boolean (not null)
     }).toList();
@@ -176,7 +176,7 @@ Future<TaskModel> createTask({
           'recurrenceEndDate': recurrenceEndDate.toIso8601String(),
         
         // ✅ SUBTASKS: Singular field name + proper structure
-        'subTask': subTaskPayload, // NOT 'subTasks'!
+        'subtasks': subTaskPayload, // NOT 'subtasks'!
       },
     );
 
@@ -192,7 +192,7 @@ Future<TaskModel> updateTask({
   String? description,
   DateTime? startTime,
   DateTime? deadline,
-  List<SubTaskModel>? subTasks,
+  List<SubTaskModel>? subtasks,
   String? status,
   // ✅ RECURRENCE PARAMETERS
   String? recurrenceType,
@@ -220,8 +220,8 @@ Future<TaskModel> updateTask({
     }
     
     // Subtasks update
-    if (subTasks != null) {
-      data['subTask'] = subTasks.map((s) => {
+    if (subtasks != null) {
+      data['subtasks'] = subtasks.map((s) => {
         'id': s.id,
         'title': s.title,
         'isDone': s.isDone,

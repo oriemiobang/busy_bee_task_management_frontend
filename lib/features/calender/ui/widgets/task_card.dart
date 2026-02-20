@@ -100,7 +100,7 @@ class TaskCard extends StatelessWidget {
                 ),
                 
                 // Subtask progress
-                if (task.subTasks.isNotEmpty) ...[
+                if (task.subtasks.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Row(
                     children: [
@@ -123,7 +123,7 @@ class TaskCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '${task.completedSubTasksCount}/${task.subTasks.length}',
+                        '${task.completedSubTasksCount}/${task.subtasks.length}',
                         style: const TextStyle(color: Colors.grey, fontSize: 12),
                       ),
                     ],

@@ -151,10 +151,10 @@ Future<void> toggleSubTaskStatus({
 
     final task = _tasks[taskIndex];
 
-    final subTaskIndex = task.subTasks.indexWhere((s) => s.id == subTaskId);
+    final subTaskIndex = task.subtasks.indexWhere((s) => s.id == subTaskId);
     if (subTaskIndex == -1) return;
 
-    final subTask = task.subTasks[subTaskIndex];
+    final subTask = task.subtasks[subTaskIndex];
 
     // Toggle locally
     final newStatus = !subTask.isDone;
@@ -162,7 +162,7 @@ Future<void> toggleSubTaskStatus({
       isDone: newStatus,
     );
 
-    final updatedSubTasks = List<SubTaskModel>.from(task.subTasks);
+    final updatedSubTasks = List<SubTaskModel>.from(task.subtasks);
     updatedSubTasks[subTaskIndex] = updatedSubTask;
 
     // Replace task
@@ -198,7 +198,7 @@ Future<TaskModel> createTask({
   required String description,
   required DateTime startTime,
   DateTime? deadline,
-  List<SubTaskModel> subTasks = const [],
+  required List<SubTaskModel> subtasks,
   String status = 'PROGRESS',
   String? recurrenceType,
   int? recurrenceInterval,
@@ -210,13 +210,13 @@ Future<TaskModel> createTask({
   _setError(null);
 
   try {
-    // ✅ 1. Create task via repository
+    // 1. Create task via repository
     final task = await _tasksRepository.createTask(
       title: title,
       description: description,
       startTime: startTime,
       deadline: deadline,
-      subTasks: subTasks,
+      subtasks: subtasks,
       status: status,
       recurrenceType: recurrenceType,
       recurrenceInterval: recurrenceInterval,
@@ -250,7 +250,7 @@ Future<TaskModel> updateTask({
   String? description,
   DateTime? startTime,
   DateTime? deadline,
-  List<SubTaskModel>? subTasks,
+  List<SubTaskModel>? subtasks,
   String? status,
   // ✅ RECURRENCE PARAMETERS
   String? recurrenceType,
@@ -269,7 +269,7 @@ Future<TaskModel> updateTask({
       description: description,
       startTime: startTime,
       deadline: deadline,
-      subTasks: subTasks,
+      subtasks: subtasks,
       status: status,
       // ✅ PASS RECURRENCE DATA TO REPOSITORY
       recurrenceType: recurrenceType,
@@ -303,7 +303,7 @@ Future<TaskModel> updateTask({
 //   String? description,
 //   DateTime? startTime,
 //   DateTime? deadline,
-//   List<SubTaskModel>? subTasks,
+//   List<SubTaskModel>? subtasks,
 //   String? status,
 // }) async {
 //   try {
@@ -316,7 +316,7 @@ Future<TaskModel> updateTask({
 //       description: description,
 //       startTime: startTime,
 //       deadline: deadline,
-//       subTasks: subTasks,
+//       subtasks: subtasks,
 //       status: status,
 //     );
     

@@ -91,12 +91,12 @@ Future<TaskModel> updateSubTask({
       final cachedTask = await _getCachedTaskById(taskId);
       if (cachedTask != null) {
         final subTaskIndex =
-            cachedTask.subTasks.indexWhere((s) => s.id == subTaskId);
+            cachedTask.subtasks.indexWhere((s) => s.id == subTaskId);
 
         if (subTaskIndex != -1) {
-          final oldSubTask = cachedTask.subTasks[subTaskIndex];
+          final oldSubTask = cachedTask.subtasks[subTaskIndex];
 
-          cachedTask.subTasks[subTaskIndex] = oldSubTask.copyWith(
+          cachedTask.subtasks[subTaskIndex] = oldSubTask.copyWith(
             title: title ?? oldSubTask.title,
             isDone: isDone ?? oldSubTask.isDone,
             updatedAt: DateTime.now(),
@@ -153,7 +153,7 @@ Future<TaskModel> createTask({
   required String description,
   required DateTime startTime,
   DateTime? deadline,
-  List<SubTaskModel> subTasks = const [],
+  List<SubTaskModel> subtasks = const [],
   String status = 'PROGRESS',
   // ✅ RECURRENCE PARAMETERS
   String? recurrenceType,
@@ -168,7 +168,7 @@ Future<TaskModel> createTask({
       description: description,
       startTime: startTime,
       deadline: deadline,
-      subTasks: subTasks,
+      subtasks: subtasks,
       status: status,
       // ✅ PASS TO API
       recurrenceType: recurrenceType,
@@ -397,14 +397,14 @@ Future<TaskModel> createTask({
     try {
       final task = await _getCachedTaskById(taskId);
       if (task != null) {
-        final subTaskIndex = task.subTasks.indexWhere((sub) => sub.id == subTaskId);
+        final subTaskIndex = task.subtasks.indexWhere((sub) => sub.id == subTaskId);
         if (subTaskIndex != -1) {
-          task.subTasks[subTaskIndex] = SubTaskModel(
+          task.subtasks[subTaskIndex] = SubTaskModel(
             id: subTaskId,
-            title: task.subTasks[subTaskIndex].title,
+            title: task.subtasks[subTaskIndex].title,
             isDone: isDone,
             taskId: taskId,
-            createdAt: task.subTasks[subTaskIndex].createdAt,
+            createdAt: task.subtasks[subTaskIndex].createdAt,
             updatedAt: DateTime.now(),
           );
           
@@ -425,7 +425,7 @@ Future<TaskModel> updateTask({
   String? description,
   DateTime? startTime,
   DateTime? deadline,
-  List<SubTaskModel>? subTasks,
+  List<SubTaskModel>? subtasks,
   String? status,
   // ✅ RECURRENCE PARAMETERS
   String? recurrenceType,
@@ -441,7 +441,7 @@ Future<TaskModel> updateTask({
       description: description,
       startTime: startTime,
       deadline: deadline,
-      subTasks: subTasks,
+      subtasks: subtasks,
       status: status,
       // ✅ PASS TO API
       recurrenceType: recurrenceType,

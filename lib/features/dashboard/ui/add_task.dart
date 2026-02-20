@@ -35,7 +35,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
   bool _isDeadlineEnabled = false;
   List<SubTaskModel> _subTasks = [];
 
-  // ✅ RECURRENCE STATE
+  // RECURRENCE STATE
   String _recurrenceType = 'ONCE';
   int _recurrenceInterval = 1;
   List<String> _recurrenceDays = [];
@@ -55,9 +55,9 @@ void initState() {
     _startTime = task.startTime;
     _deadline = task.deadline;
     _isDeadlineEnabled = task.deadline != null;
-    _subTasks = List.from(task.subTasks);
+    _subTasks = List.from(task.subtasks);
 
-    // ✅ LOAD EXISTING RECURRENCE DATA
+    // LOAD EXISTING RECURRENCE DATA
     _recurrenceType = task.recurrenceType ?? 'ONCE';
     _recurrenceInterval = task.recurrenceInterval ?? 1;
     _recurrenceDays = task.recurrenceDays ?? [];
@@ -65,7 +65,7 @@ void initState() {
   } else {
     _deadline = DateTime.now().add(const Duration(days: 1));
     _isDeadlineEnabled = true;
-    // ✅ DEFAULT TO NON-RECURRING FOR NEW TASKS
+    //DEFAULT TO NON-RECURRING FOR NEW TASKS
     _recurrenceType = 'ONCE';
     _recurrenceInterval = 1;
     _recurrenceDays = [];
@@ -100,16 +100,16 @@ Future<void> _saveTask() async {
     final provider = context.read<TasksProvider>();
 
     if (_isCreating) {
-      // ✅ INCLUDE RECURRENCE DATA IN CREATE
+      // INCLUDE RECURRENCE DATA IN CREATE
       await provider.createTask(
         title: title,
         description: _descriptionController.text.trim(),
         startTime: _startTime,
         deadline: _isDeadlineEnabled ? _deadline : null,
-        subTasks: _subTasks,
-        status: 'PROGRESS', // ✅ Correct spelling (PROGRESS not PROGRES)
+        subtasks: _subTasks,
+        status: 'PROGRESS', 
         
-        // ✅ RECURRENCE PARAMETERS
+        // RECURRENCE PARAMETERS
         recurrenceType: _recurrenceType,
         recurrenceInterval: _recurrenceType != 'ONCE' ? _recurrenceInterval : null,
         recurrenceDays: _recurrenceType == 'WEEKLY' && _recurrenceDays.isNotEmpty 
@@ -118,20 +118,20 @@ Future<void> _saveTask() async {
         recurrenceDayOfMonth: _recurrenceType == 'MONTHLY' 
             ? _recurrenceDayOfMonth 
             : null,
-        recurrenceEndDate: null, // Optional - could add end date picker later
+        recurrenceEndDate: null,
       );
     } else {
-      // ✅ INCLUDE RECURRENCE DATA IN UPDATE
+      // INCLUDE RECURRENCE DATA IN UPDATE
       await provider.updateTask(
         taskId: widget.taskId!,
         title: title,
         description: _descriptionController.text.trim(),
         startTime: _startTime,
         deadline: _isDeadlineEnabled ? _deadline : null,
-        subTasks: _subTasks.isNotEmpty ? _subTasks : null,
+        subtasks: _subTasks.isNotEmpty ? _subTasks : null,
         status: 'PROGRESS',
         
-        // ✅ RECURRENCE PARAMETERS
+        // RECURRENCE PARAMETERS
         recurrenceType: _recurrenceType,
         recurrenceInterval: _recurrenceType != 'ONCE' ? _recurrenceInterval : null,
         recurrenceDays: _recurrenceType == 'WEEKLY' && _recurrenceDays.isNotEmpty 
@@ -219,7 +219,7 @@ Future<void> _saveTask() async {
           children: [
             const SizedBox(height: 16),
 
-            // ✅ TITLE FIELD
+            // TITLE FIELD
             TaskTitleField(
               controller: _titleController,
               autoFocus: true,
@@ -228,7 +228,7 @@ Future<void> _saveTask() async {
 
             const SizedBox(height: 24),
 
-            // ✅ DATE/TIME SECTION
+            // DATE/TIME SECTION
             sectionCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -251,7 +251,7 @@ Future<void> _saveTask() async {
                   ),
                   const SizedBox(height: 16),
 
-                  // ✅ DEADLINE SECTION
+                  // DEADLINE SECTION
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
@@ -262,7 +262,7 @@ Future<void> _saveTask() async {
 
                   const SizedBox(height: 16),
 
-                  // ✅ RECURRENCE SECTION (NEW)
+                  // RECURRENCE SECTION (NEW)
                   const Divider(color: Colors.grey, height: 1),
                   const SizedBox(height: 16),
                   RecurrencePicker(
@@ -290,7 +290,7 @@ Future<void> _saveTask() async {
 
             const SizedBox(height: 24),
 
-            // ✅ DESCRIPTION SECTION
+            // DESCRIPTION SECTION
             sectionCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,9 +326,9 @@ Future<void> _saveTask() async {
 
             const SizedBox(height: 24),
 
-            // ✅ SUBTASKS SECTION
+            // SUBTASKS SECTION
             SubTasksList(
-              subTasks: _subTasks,
+              subtasks: _subTasks,
               onSubTaskAdded: (subTask) {
                 setState(() => _subTasks.add(subTask));
               },
@@ -348,7 +348,7 @@ Future<void> _saveTask() async {
         ),
       ),
 
-      // ✅ SAVE BUTTON (FULL WIDTH)
+      // SAVE BUTTON (FULL WIDTH)
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         color: Colors.black,

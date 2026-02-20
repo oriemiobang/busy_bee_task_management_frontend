@@ -8,7 +8,7 @@ class TaskModel {
   final DateTime createdAt;
   final DateTime updatedAt;
   final int userId;
-  final List<SubTaskModel> subTasks;
+  final List<SubTaskModel> subtasks;
   final TaskUser? user;
   
   // ✅ RECURRENCE FIELDS (matching Prisma schema)
@@ -28,7 +28,7 @@ class TaskModel {
     required this.createdAt,
     required this.updatedAt,
     required this.userId,
-    required this.subTasks,
+    required this.subtasks,
     this.user,
     // ✅ RECURRENCE PARAMETERS
     this.recurrenceType,
@@ -73,7 +73,7 @@ class TaskModel {
       userId: json['userId'] ?? json['user_id'] ?? 0,
       
       // ✅ CRITICAL FIX: Safe subtask parsing (handles empty arrays)
-      subTasks: (json['subTasks'] as List? ?? json['subTask'] as List? ?? [])
+      subtasks: (json['subtasks'] as List? ?? json['subtasks'] as List? ?? [])
           .where((e) => e != null)
           .map((e) => SubTaskModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -101,7 +101,7 @@ class TaskModel {
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
         'userId': userId,
-        'subTask': subTasks.map((s) => s.toJson()).toList(),
+        'subTask': subtasks.map((s) => s.toJson()).toList(),
         if (user != null) 'user': user!.toJson(),
         
         // ✅ INCLUDE RECURRENCE FIELDS IF SET
@@ -138,7 +138,7 @@ class TaskModel {
       createdAt: createdAt,
       updatedAt: DateTime.now(),
       userId: userId,
-      subTasks: subTasks ?? this.subTasks,
+      subtasks: subtasks ?? this.subtasks,
       user: user,
       
       // ✅ PRESERVE RECURRENCE FIELDS
@@ -152,9 +152,9 @@ class TaskModel {
 
   // Helpers
   bool get isCompleted => status == 'COMPLETED';
-  int get completedSubTasksCount => subTasks.where((s) => s.isDone).length;
-  bool get areAllSubTasksDone => subTasks.isNotEmpty && subTasks.every((s) => s.isDone);
-  double get completionPercentage => subTasks.isEmpty ? 0 : completedSubTasksCount / subTasks.length * 100;
+  int get completedSubTasksCount => subtasks.where((s) => s.isDone).length;
+  bool get areAllSubTasksDone => subtasks.isNotEmpty && subtasks.every((s) => s.isDone);
+  double get completionPercentage => subtasks.isEmpty ? 0 : completedSubTasksCount / subtasks.length * 100;
 
   // ✅ RECURRENCE HELPER: Human-readable description
   String get recurrenceDescription {
@@ -197,7 +197,7 @@ class SubTaskModel {
 
   factory SubTaskModel.fromJson(Map<String, dynamic> json) {
     return SubTaskModel(
-      id: json['id'] ?? 0,
+      id: json['id'] ?? 0, // ✅ Default to 0 if missing
       title: json['title'] ?? 'Untitled Subtask',
       isDone: json['isDone'] ?? json['is_done'] ?? false,
       taskId: json['taskId'] ?? json['task_id'] ?? 0,

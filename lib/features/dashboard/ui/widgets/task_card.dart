@@ -94,7 +94,7 @@ class TaskCard extends StatelessWidget {
                       children: [
                         _buildSubtaskProgress(
                           completed: task.completedSubTasksCount,
-                          total: task.subTasks.length,
+                          total: task.subtasks.length,
                         ),
                         const SizedBox(width: 8),
                       isHome?   _buildActionMenu(context): SizedBox(),
@@ -105,9 +105,9 @@ class TaskCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 const Divider(color: Colors.grey, height: 16),
                 // Subtasks list
-                if (task.subTasks.isNotEmpty) ...[
+                if (task.subtasks.isNotEmpty) ...[
                   Column(
-                    children: task.subTasks.map((subTask) {
+                    children: task.subtasks.map((subTask) {
                       return GestureDetector(
                         onTap: () => onSubTaskToggle(subTask.id),
                         child: Padding(
