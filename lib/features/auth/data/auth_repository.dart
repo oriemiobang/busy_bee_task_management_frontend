@@ -1,10 +1,13 @@
 import 'package:frontend/core/storage/secure_storage.dart';
 import 'package:frontend/features/auth/data/auth_api.dart';
 import 'package:frontend/features/auth/models/user_model.dart';
+import 'package:frontend/features/dashboard/state/tasks_provider.dart';
+// import 'package:frontend/features/dashboard/state/tasks_provider.dart';
 
 class AuthRepository {
   final AuthApi _authApi;
   final SecureStorage _secureStorage;
+ 
   
   AuthRepository({
     required AuthApi authApi,
@@ -58,11 +61,15 @@ class AuthRepository {
   
   Future<void> logout() async {
     try {
-      await _authApi.logout();
+       
+        await _secureStorage.clearAll();
+      
+      // await _authApi.logout();
     } finally {
-      await _secureStorage.clearAll();
+    
     }
   }
+
   
   Future<void> forgotPassword(String email) async {
     await _authApi.forgotPassword(email);

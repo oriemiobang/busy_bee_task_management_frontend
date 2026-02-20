@@ -272,7 +272,7 @@ String _handleError(DioException e) {
   }) async {
     try {
       final response = await _dioClient.dio.patch(
-        '${ApiEndpoints.tasks}/$taskId/status',
+        '/tasks/update-status/$taskId',
         data: {'status': status},
       );
 
@@ -289,7 +289,7 @@ String _handleError(DioException e) {
   }) async {
     try {
       final response = await _dioClient.dio.patch(
-        '${ApiEndpoints.tasks}/$taskId/subtasks/$subTaskId',
+        '/tasks/$taskId/subtasks/$subTaskId',
         data: {'isDone': isDone},
       );
 

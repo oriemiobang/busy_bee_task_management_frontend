@@ -52,10 +52,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // Registration successful - navigate to dashboard
       if (context.mounted) {
           print('here in the mounted statement');
-        final router = GoRouter.of(context);
-        router.goNamed(AppRoutes.dashboard);
+        // final router = GoRouter.of(context);
+        // router.goNamed(AppRoutes.dashboard);
       
-        NavigationService.goToDashboard();
+        context.go(AppRoutes.register);
       }
     } catch (e) {
       // Show error message
@@ -321,7 +321,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         onPressed: isLoading
                             ? null
-                            : () => _registerUser(context),
+                            : () =>_registerUser(context),
                         child: isLoading
                             ? const CircularProgressIndicator(color: Colors.white)
                             : const Text(

@@ -70,13 +70,13 @@ class AuthApi {
     }
   }
   
-  Future<void> logout() async {
-    try {
-      await _dioClient.dio.post(ApiEndpoints.logout);
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
-  }
+  // Future<void> logout() async {
+  //   try {
+  //     await _dioClient.dio.post(ApiEndpoints.logout);
+  //   } on DioException catch (e) {
+  //     throw _handleError(e);
+  //   }
+  // }
   
   Future<void> forgotPassword(String email) async {
     try {

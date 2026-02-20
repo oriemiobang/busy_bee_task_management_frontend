@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/constants/colors.dart';
 import 'package:frontend/features/auth/models/user_model.dart';
+import 'package:frontend/features/dashboard/state/tasks_provider.dart';
 import 'package:frontend/features/profile/state/account_provider.dart';
 import 'package:frontend/features/profile/ui/widgets/profile_header.dart';
 import 'package:frontend/features/profile/ui/widgets/settings_items.dart';
@@ -157,6 +158,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
   void _showNameDialog(BuildContext context) {
     final accountProvider = context.read<AccountProvider>();
     final authProvider = context.read<AuthProvider>();
+  
     final user = accountProvider.user;
 
     _nameController.text = user?.name ?? '';
@@ -233,6 +235,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
 
   void _showPasswordDialog(BuildContext context) {
     final accountProvider = context.read<AccountProvider>();
+    
 
     showDialog(
       context: context,
@@ -345,6 +348,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
 
   void _showDeactivateDialog(BuildContext context) {
      final authProvider = context.read<AuthProvider>();
+       final  tasksProvider = context.read<TasksProvider>();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -366,30 +370,29 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
             ),
           ),
           TextButton(
-            onPressed: () {
-              authProvider.logout();
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Account logged out successfully'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-              // Navigate to login screen after deactivation
-              Future.delayed(const Duration(seconds: 2), () {
-                if (context.mounted) {
+         onPressed: () async {
+  // Close the dialog FIRST
+  context.pop();
 
-                  context.go(AppRoutes.login);
-                  // Navigator.pushAndRemoveUntil(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => const LoginScreen(),
-                  //   ),
-                  //   (route) => false,
-                  // );
-                }
-              });
-            },
+  // Logout and wait for it to finish
+  await authProvider.logout();
+
+  if (!context.mounted) return;
+
+  // Reset tab index
+  tasksProvider.setCurrentIndex(0);
+
+  // Navigate immediately
+  context.go(AppRoutes.login);
+
+  // Show snackbar on next frame (safer)
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Account logged out successfully'),
+      backgroundColor: Colors.green,
+    ),
+  );
+},
             child: const Text(
               'Log out',
               style: TextStyle(color: Colors.red),

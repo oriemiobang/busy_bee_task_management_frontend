@@ -32,7 +32,7 @@ class ProfileHeader extends StatelessWidget {
                 shape: BoxShape.circle,
                 image: user?.imageUrl != null
                     ? DecorationImage(
-                        image: NetworkImage(user!.imageUrl!),
+                        image: NetworkImage(user?.imageUrl ?? ''),
                         // image: AssetImage('assets/girl1.jpg'),
                         fit: BoxFit.cover,
                       )
@@ -61,7 +61,7 @@ class ProfileHeader extends StatelessWidget {
         const SizedBox(height: 16),
         // User name
         Text(
-          authProvider.user!.name ?? 'User',
+          authProvider.user?.name ?? 'User',
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,

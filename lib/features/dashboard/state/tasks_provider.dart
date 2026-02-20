@@ -106,17 +106,18 @@ class TasksProvider extends ChangeNotifier {
 
       final task = _tasks[index];
       final newStatus = task.isCompleted ? 'PROGRESS' : 'COMPLETED';
-
-      final updatedTask = await _tasksRepository.updateTaskStatus(
+      final myupdatedTask = task.status == 'COMPLETED' ? task.copyWith(status: 'PROGRESS') : task.copyWith(status: 'COMPLETED');
+        _tasks[index] = myupdatedTask;
+      notifyListeners();
+        await _tasksRepository.updateTaskStatus(
         taskId: taskId,
         status: newStatus,
       );
-
-      _tasks[index] = updatedTask;
-      notifyListeners();
     } catch (e) {
       _setError(e.toString());
       rethrow;
+    } finally {
+      
     }
   }
 

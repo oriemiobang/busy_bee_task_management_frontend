@@ -9,7 +9,8 @@ static const String baseUrl = 'https://busy-bee-task-management-api.onrender.com
   // Auth endpoints
   static const String register = '/auth/signup';
   static const String login = '/auth/signin';
-  static const String logout = '/auth/logout';
+  static String updateTask(String id) => '/tasks/update-task/$id';
+  // static const String logout = '/auth/logout';
   static const String refreshToken = '/auth/refresh-token';
   static const String forgotPassword = '/auth/forgot-password';
   static const String resetPassword = '/auth/reset-password';
