@@ -15,7 +15,7 @@ static const String baseUrl = 'https://busy-bee-task-management-api.onrender.com
   static const String forgotPassword = '/auth/forgot-password';
   static const String resetPassword = '/auth/reset-password';
   static const String delete = '/tasks/delete-task';
-  static  String updateSubTask(String taskId, String subTaskId) => 'https://busy-bee-task-management-api.onrender.com/tasks/update-subTask/$taskId/subtask/$subTaskId';
+  static  String updateSubTask(int taskId, int subTaskId) => 'https://busy-bee-task-management-api.onrender.com/tasks/update-subTask/$taskId/subtask/$subTaskId';
   // Add this to your existing ApiEndpoints class
 static const String productivityStats = '/analytics/dashboard';
 static const String addTask = '/tasks/add-task';

@@ -146,44 +146,33 @@ Future<void> toggleSubTaskStatus({
   required int taskId,
   required int subTaskId,
 }) async {
-  try {
-    final taskIndex = _tasks.indexWhere((t) => t.id == taskId);
-    if (taskIndex == -1) return;
+final taskIndex = _tasks.indexWhere((t) => t.id == taskId);
+if (taskIndex == -1) return;
 
-    final task = _tasks[taskIndex];
+final task = _tasks[taskIndex];
 
-    final subTaskIndex = task.subtasks.indexWhere((s) => s.id == subTaskId);
-    if (subTaskIndex == -1) return;
+final subTaskIndex = task.subtasks.indexWhere((s) => s.id == subTaskId);
+if (subTaskIndex == -1) return;
 
-    final subTask = task.subtasks[subTaskIndex];
+final subTask = task.subtasks[subTaskIndex];
+final newStatus = !subTask.isDone;
 
-    // Toggle locally
-    final newStatus = !subTask.isDone;
-    final updatedSubTask = subTask.copyWith(
-      isDone: newStatus,
-    );
+// Update locally
+final updatedSubTask = subTask.copyWith(isDone: newStatus);
+final updatedSubTasks = List<SubTaskModel>.from(task.subtasks);
+updatedSubTasks[subTaskIndex] = updatedSubTask;
+_tasks[taskIndex] = task.copyWith(subtasks: updatedSubTasks);
 
-    final updatedSubTasks = List<SubTaskModel>.from(task.subtasks);
-    updatedSubTasks[subTaskIndex] = updatedSubTask;
+notifyListeners();
 
-    // Replace task
-    final updatedTask = task.copyWith(
-      subTasks: updatedSubTasks,
-    );
-
-    _tasks[taskIndex] = updatedTask;
-
-
-    // Update UI immediately
-    notifyListeners();
-
-    // Send update to backend
-    await _tasksRepository.updateSubTask(
-      taskId: taskId,
-      subTaskId: subTaskId,
-      isDone: newStatus,
-    );
-  } catch (e) {
+// Update backend
+try {
+  await _tasksRepository.updateSubTask(
+    taskId: taskId,
+    subTaskId: subTaskId,
+    isDone: newStatus,
+  );
+} catch (e) {
     _setError(e.toString());
     rethrow;
   }

@@ -96,7 +96,7 @@ Future<TaskModel> updateSubTask({
   bool? isDone,
 }) async {
   final response = await _dioClient.dio.patch(
-    '/tasks/$taskId/subtasks/$subTaskId',
+    ApiEndpoints.updateSubTask(taskId, subTaskId),
     data: {
       if (title != null) 'title': title,
       if (isDone != null) 'isDone': isDone,
@@ -289,7 +289,7 @@ String _handleError(DioException e) {
   }) async {
     try {
       final response = await _dioClient.dio.patch(
-        '/tasks/$taskId/subtasks/$subTaskId',
+        ApiEndpoints.updateSubTask(taskId, subTaskId),
         data: {'isDone': isDone},
       );
 

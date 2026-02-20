@@ -14,6 +14,7 @@ class AppInitializationProvider extends ChangeNotifier {
     // Preload tasks if authenticated
     if (context.read<AuthProvider>().isAuthenticated) {
       await context.read<TasksProvider>().ensureTasksLoaded();
+      await context.read<AuthProvider>().getCurrentUser(); 
     }
     
     _isInitialized = true;

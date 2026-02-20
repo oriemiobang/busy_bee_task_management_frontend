@@ -101,7 +101,7 @@ class TaskModel {
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
         'userId': userId,
-        'subTask': subtasks.map((s) => s.toJson()).toList(),
+        'subtasks': subtasks.map((s) => s.toJson()).toList(),
         if (user != null) 'user': user!.toJson(),
         
         // ✅ INCLUDE RECURRENCE FIELDS IF SET
@@ -120,7 +120,7 @@ class TaskModel {
     DateTime? startTime,
     DateTime? deadline,
     String? status,
-    List<SubTaskModel>? subTasks,
+    List<SubTaskModel>? subtasks,
     // ✅ RECURRENCE PARAMETERS
     String? recurrenceType,
     int? recurrenceInterval,

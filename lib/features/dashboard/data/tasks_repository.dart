@@ -2,9 +2,6 @@
 import 'package:frontend/core/storage/secure_storage.dart';
 import 'package:frontend/features/dashboard/data/tasks_api.dart';
 import 'package:frontend/features/dashboard/model/task_model.dart';
-// import 'package:frontend/core/services/secure_storage.dart';
-import 'dart:convert';
-
 import 'package:frontend/features/dashboard/model/task_stats.dart';
 
 class TasksRepository {
@@ -13,43 +10,34 @@ class TasksRepository {
 
   TasksRepository(this._tasksApi, this._secureStorage);
 
-  Future<List<TaskModel>> getTasks({
-    String? status,
-    DateTime? date,
-  }) async {
+  // ===================== TASK FETCH =====================
+  Future<List<TaskModel>> getTasks({String? status, DateTime? date}) async {
     try {
-      // Generate cache key based on parameters
       final cacheKey = _generateCacheKey(status: status, date: date);
-      
-      // Check if we have valid cache for this query
+
       final isCacheValid = await _secureStorage.isCacheValid(key: cacheKey);
       if (isCacheValid) {
         print('Loading tasks from cache for key: $cacheKey');
         final cachedTasks = await _getCachedTasks(cacheKey);
-        
         if (cachedTasks.isNotEmpty) {
           print('Loaded ${cachedTasks.length} tasks from cache');
           return cachedTasks;
         }
       }
-      
-      // If no valid cache, fetch from API
+
       print('Fetching tasks from API...');
-      final tasks = await _tasksApi.getTasks(
-        status: status,
-        date: date,
-      );
-      
+      final tasks = await _tasksApi.getTasks(status: status, date: date);
+
       print('Received ${tasks.length} tasks from API');
-      
-      // Cache the tasks
       await _cacheTasks(tasks, cacheKey);
-      
+      // Also cache each task individually
+      for (var task in tasks) {
+        await _cacheTaskById(task);
+      }
+
       return tasks;
     } catch (e) {
       print('Error in getTasks: $e');
-      
-      // Try to return cached data as fallback
       try {
         final cacheKey = _generateCacheKey(status: status, date: date);
         final cachedTasks = await _getCachedTasks(cacheKey);
@@ -57,161 +45,138 @@ class TasksRepository {
           print('Falling back to cached data (${cachedTasks.length} tasks)');
           return cachedTasks;
         }
-      } catch (cacheError) {
-        print('Could not load from cache: $cacheError');
-      }
-      
-      return []; // Return empty list on error
+      } catch (_) {}
+      return [];
     }
   }
-Future<TaskModel> updateSubTask({
-  required int taskId,
-  required int subTaskId,
-  String? title,
-  bool? isDone,
-}) async {
-  try {
-    //  Call API
-    final updatedTask = await _tasksApi.updateSubTask(
-      taskId: taskId,
-      subTaskId: subTaskId,
-      title: title,
-      isDone: isDone,
-    );
 
-
-    await _updateTaskInCache(updatedTask);
-
-    return updatedTask;
-  } catch (e) {
-    print('Error updating subtask: $e');
-
-    // 3️ Fallback: try cache update if possible
-    try {
-      final cachedTask = await _getCachedTaskById(taskId);
-      if (cachedTask != null) {
-        final subTaskIndex =
-            cachedTask.subtasks.indexWhere((s) => s.id == subTaskId);
-
-        if (subTaskIndex != -1) {
-          final oldSubTask = cachedTask.subtasks[subTaskIndex];
-
-          cachedTask.subtasks[subTaskIndex] = oldSubTask.copyWith(
-            title: title ?? oldSubTask.title,
-            isDone: isDone ?? oldSubTask.isDone,
-            updatedAt: DateTime.now(),
-          );
-
-          await _updateTaskInCache(cachedTask);
-          return cachedTask;
-        }
-      }
-    } catch (_) {}
-
-    rethrow;
-  }
-}
-
-  // Future<TaskModel> getTaskById(int taskId) async {
-  //   try {
-  //     // Check cache first
-  //     final cacheKey = 'task_$taskId';
-  //     final isCacheValid = await _secureStorage.isCacheValid(key: cacheKey);
-      
-  //     if (isCacheValid) {
-  //       final cachedTask = await _getCachedTaskById(taskId);
-  //       if (cachedTask != null) {
-  //         print('Loaded task $taskId from cache');
-  //         return cachedTask;
-  //       }
-  //     }
-      
-  //     // Fetch from API
-  //     final task = await _tasksApi.getTaskById(taskId);
-      
-  //     // Update this task in cache
-  //     await _updateTaskInCache(task);
-      
-  //     return task;
-  //   } catch (e) {
-  //     print('Error getting task by id: $e');
-      
-  //     // Try cache as fallback
-  //     final cachedTask = await _getCachedTaskById(taskId);
-  //     if (cachedTask != null) {
-  //       print('Falling back to cached task $taskId');
-  //       return cachedTask;
-  //     }
-      
-  //     rethrow;
-  //   }
-  // }
-
-
-Future<TaskModel> createTask({
-  required String title,
-  required String description,
-  required DateTime startTime,
-  DateTime? deadline,
-  List<SubTaskModel> subtasks = const [],
-  String status = 'PROGRESS',
-  // ✅ RECURRENCE PARAMETERS
-  String? recurrenceType,
-  int? recurrenceInterval,
-  List<String>? recurrenceDays,
-  int? recurrenceDayOfMonth,
-  DateTime? recurrenceEndDate,
-}) async {
-  try {
-    final task = await _tasksApi.createTask(
-      title: title,
-      description: description,
-      startTime: startTime,
-      deadline: deadline,
-      subtasks: subtasks,
-      status: status,
-      // ✅ PASS TO API
-      recurrenceType: recurrenceType,
-      recurrenceInterval: recurrenceInterval,
-      recurrenceDays: recurrenceDays,
-      recurrenceDayOfMonth: recurrenceDayOfMonth,
-      recurrenceEndDate: recurrenceEndDate,
-    );
-    
-    await _addTaskToCache(task);
-    return task;
-  } catch (e) {
-    print('Error creating task: $e');
-    rethrow;
-  }
-}
-
-  // Future<void> deleteTask(taskId){
-  //   try {
-
-
-
-  //   } catch(e){
-  //     print(e.toString());
-  //   }
-  // }
-
-  Future<TaskModel> updateTaskStatus({
-    required int taskId,
-    required String status,
+  // ===================== TASK CREATE =====================
+  Future<TaskModel> createTask({
+    required String title,
+    required String description,
+    required DateTime startTime,
+    DateTime? deadline,
+    List<SubTaskModel> subtasks = const [],
+    String status = 'PROGRESS',
+    String? recurrenceType,
+    int? recurrenceInterval,
+    List<String>? recurrenceDays,
+    int? recurrenceDayOfMonth,
+    DateTime? recurrenceEndDate,
   }) async {
     try {
-      final task = await _tasksApi.updateTaskStatus(
-        taskId: taskId,
+      final task = await _tasksApi.createTask(
+        title: title,
+        description: description,
+        startTime: startTime,
+        deadline: deadline,
+        subtasks: subtasks,
         status: status,
+        recurrenceType: recurrenceType,
+        recurrenceInterval: recurrenceInterval,
+        recurrenceDays: recurrenceDays,
+        recurrenceDayOfMonth: recurrenceDayOfMonth,
+        recurrenceEndDate: recurrenceEndDate,
       );
-      
-      // Update task in cache
+
+      await _addTaskToCache(task);
+      await _cacheTaskById(task);
+      return task;
+    } catch (e) {
+      print('Error creating task: $e');
+      rethrow;
+    }
+  }
+
+  // ===================== TASK UPDATE =====================
+  Future<TaskModel> updateTask({
+    required int taskId,
+    String? title,
+    String? description,
+    DateTime? startTime,
+    DateTime? deadline,
+    List<SubTaskModel>? subtasks,
+    String? status,
+    String? recurrenceType,
+    int? recurrenceInterval,
+    List<String>? recurrenceDays,
+    int? recurrenceDayOfMonth,
+    DateTime? recurrenceEndDate,
+  }) async {
+    try {
+      final task = await _tasksApi.updateTask(
+        taskId: taskId,
+        title: title,
+        description: description,
+        startTime: startTime,
+        deadline: deadline,
+        subtasks: subtasks,
+        status: status,
+        recurrenceType: recurrenceType,
+        recurrenceInterval: recurrenceInterval,
+        recurrenceDays: recurrenceDays,
+        recurrenceDayOfMonth: recurrenceDayOfMonth,
+        recurrenceEndDate: recurrenceEndDate,
+      );
+
       await _updateTaskInCache(task);
-      
+      await _cacheTaskById(task);
+      return task;
+    } catch (e) {
+      print('Error updating task: $e');
+      rethrow;
+    }
+  }
+
+  Future<TaskModel> updateTaskStatus({required int taskId, required String status}) async {
+    try {
+      final task = await _tasksApi.updateTaskStatus(taskId: taskId, status: status);
+      await _updateTaskInCache(task);
+      await _cacheTaskById(task);
       return task;
     } catch (e) {
       print('Error updating task status: $e');
+      rethrow;
+    }
+  }
+
+  // ===================== SUBTASK UPDATE =====================
+  Future<TaskModel> updateSubTask({
+    required int taskId,
+    required int subTaskId,
+    String? title,
+    bool? isDone,
+  }) async {
+    try {
+      final updatedTask = await _tasksApi.updateSubTask(
+        taskId: taskId,
+        subTaskId: subTaskId,
+        title: title,
+        isDone: isDone,
+      );
+
+      await _updateTaskInCache(updatedTask);
+      await _cacheTaskById(updatedTask);
+      return updatedTask;
+    } catch (e) {
+      print('Error updating subtask: $e');
+      try {
+        final cachedTask = await _getCachedTaskById(taskId);
+        if (cachedTask != null) {
+          final subTaskIndex = cachedTask.subtasks.indexWhere((s) => s.id == subTaskId);
+          if (subTaskIndex != -1) {
+            final oldSubTask = cachedTask.subtasks[subTaskIndex];
+            cachedTask.subtasks[subTaskIndex] = oldSubTask.copyWith(
+              title: title ?? oldSubTask.title,
+              isDone: isDone ?? oldSubTask.isDone,
+              updatedAt: DateTime.now(),
+            );
+            await _updateTaskInCache(cachedTask);
+            await _cacheTaskById(cachedTask);
+            return cachedTask;
+          }
+        }
+      } catch (_) {}
       rethrow;
     }
   }
@@ -227,107 +192,58 @@ Future<TaskModel> createTask({
         subTaskId: subTaskId,
         isDone: isDone,
       );
-      
-      // Update parent task in cache
-      await _updateSubTaskInCache(taskId, subTaskId, isDone);
-      
+      await _updateSubTaskInCache(taskId, subTaskId, isDone: isDone);
       return subTask;
     } catch (e) {
-      print(' Error updating subtask status: $e');
+      print('Error updating subtask status: $e');
       rethrow;
     }
   }
 
-  // Future<TaskStats> getTaskStats() async {
-  //   try {
-  //     // Check cache
-  //     final cacheKey = 'task_stats';
-  //     final isCacheValid = await _secureStorage.isCacheValid(key: cacheKey);
-      
-  //     if (isCacheValid) {
-  //       final cachedStats = await _getCachedTaskStats();
-  //       if (cachedStats != null) {
-  //         print('Loading stats from cache');
-  //         return cachedStats;
-  //       }
-  //     }
-      
-  //     // Fetch from API
-  //     final stats = await _tasksApi.getTaskStats();
-      
-  //     // Cache the stats
-  //     await _cacheTaskStats(stats);
-      
-  //     return stats;
-  //   } catch (e) {
-  //     print('Error getting task stats: $e');
-      
-  //     // Try cache as fallback
-  //     final cachedStats = await _getCachedTaskStats();
-  //     if (cachedStats != null) {
-  //       print('Falling back to cached stats');
-  //       return cachedStats;
-  //     }
-      
-  //     rethrow;
-  //   }
-  // }
-
+  // ===================== TASK DELETE =====================
   Future<void> deleteTask(int taskId) async {
     try {
       await _tasksApi.deleteTask(taskId);
-      
-      // Remove task from cache
       await _removeTaskFromCache(taskId);
+      // await _secureStorage.clearCacheByKey('task_$taskId');
     } catch (e) {
       print('Error deleting task: $e');
       rethrow;
     }
   }
 
-  // Cache helper methods
+  // ===================== CACHE HELPERS =====================
   String _generateCacheKey({String? status, DateTime? date}) {
     final parts = ['all_tasks'];
-    
-    if (status != null) {
-      parts.add('status_${status.toLowerCase()}');
-    }
-    
-    if (date != null) {
-      parts.add('date_${date.toIso8601String().split('T')[0]}');
-    }
-    
+    if (status != null) parts.add('status_${status.toLowerCase()}');
+    if (date != null) parts.add('date_${date.toIso8601String().split('T')[0]}');
     return parts.join('_');
   }
 
   Future<void> _cacheTasks(List<TaskModel> tasks, String cacheKey) async {
     try {
-      final tasksJson = tasks.map((task) => task.toJson()).toList();
-      await _secureStorage.cacheData(
-        key: cacheKey,
-        data: tasksJson,
-        dataType: 'tasks',
-      );
-      
+      final tasksJson = tasks.map((t) => t.toJson()).toList();
+      await _secureStorage.cacheData(key: cacheKey, data: tasksJson, dataType: 'tasks');
       print('Cached ${tasks.length} tasks with key: $cacheKey');
     } catch (e) {
       print('Error caching tasks: $e');
     }
   }
 
+  Future<void> _cacheTaskById(TaskModel task) async {
+    try {
+      await _secureStorage.cacheData(key: 'task_${task.id}', data: task.toJson(), dataType: 'tasks');
+      print('Cached individual task ${task.id}');
+    } catch (e) {
+      print('Error caching individual task: $e');
+    }
+  }
+
   Future<List<TaskModel>> _getCachedTasks(String cacheKey) async {
     try {
-      final cachedData = await _secureStorage.getCachedData(
-        key: cacheKey,
-        dataType: 'tasks',
-      );
-      
-      if (cachedData == null || cachedData.isEmpty) {
-        return [];
-      }
-      
-      final tasksJson = cachedData as List<dynamic>;
-      return tasksJson.map((json) => TaskModel.fromJson(json)).toList();
+      final cachedData = await _secureStorage.getCachedData(key: cacheKey, dataType: 'tasks');
+      if (cachedData == null || cachedData.isEmpty) return [];
+      return (cachedData as List<dynamic>).map((json) => TaskModel.fromJson(json)).toList();
     } catch (e) {
       print('Error reading cached tasks: $e');
       return [];
@@ -336,47 +252,40 @@ Future<TaskModel> createTask({
 
   Future<TaskModel?> _getCachedTaskById(int taskId) async {
     try {
-      // Get all tasks from cache and find the specific one
-      final allTasksKey = _generateCacheKey();
-      final cachedTasks = await _getCachedTasks(allTasksKey);
-      
-      return cachedTasks.firstWhere(
-        (task) => task.id == taskId,
-        orElse: () => throw Exception('Task not found in cache'),
-      );
-    } catch (e) {
+      final cachedData = await _secureStorage.getCachedData(key: 'task_$taskId', dataType: 'tasks');
+      if (cachedData != null) return TaskModel.fromJson(cachedData);
+      final allTasks = await _getCachedTasks(_generateCacheKey());
+      final foundTask = allTasks.firstWhere((t) => t.id == taskId, orElse: () => null as TaskModel);
+      return foundTask;
+    } catch (_) {
       return null;
     }
   }
 
-  Future<void> _updateTaskInCache(TaskModel updatedTask) async {
+  Future<void> _updateTaskInCache(TaskModel task) async {
     try {
-      // Get all cached tasks
       final allTasksKey = _generateCacheKey();
       final cachedTasks = await _getCachedTasks(allTasksKey);
-      
-      // Find and update the task
-      final taskIndex = cachedTasks.indexWhere((task) => task.id == updatedTask.id);
-      if (taskIndex != -1) {
-        cachedTasks[taskIndex] = updatedTask;
+      final idx = cachedTasks.indexWhere((t) => t.id == task.id);
+      if (idx != -1) {
+        cachedTasks[idx] = task;
         await _cacheTasks(cachedTasks, allTasksKey);
-        print('Updated task ${updatedTask.id} in cache');
+        print('Updated task ${task.id} in all_tasks cache');
       }
     } catch (e) {
-      print(' Error updating task in cache: $e');
+      print('Error updating task in cache: $e');
     }
   }
 
-  Future<void> _addTaskToCache(TaskModel newTask) async {
+  Future<void> _addTaskToCache(TaskModel task) async {
     try {
       final allTasksKey = _generateCacheKey();
       final cachedTasks = await _getCachedTasks(allTasksKey);
-      
-      cachedTasks.add(newTask);
+      cachedTasks.add(task);
       await _cacheTasks(cachedTasks, allTasksKey);
-      print('Added new task ${newTask.id} to cache');
+      print('Added task ${task.id} to cache');
     } catch (e) {
-      print(' Error adding task to cache: $e');
+      print('Error adding task to cache: $e');
     }
   }
 
@@ -384,135 +293,32 @@ Future<TaskModel> createTask({
     try {
       final allTasksKey = _generateCacheKey();
       final cachedTasks = await _getCachedTasks(allTasksKey);
-      
-      final updatedTasks = cachedTasks.where((task) => task.id != taskId).toList();
+      final updatedTasks = cachedTasks.where((t) => t.id != taskId).toList();
       await _cacheTasks(updatedTasks, allTasksKey);
       print('Removed task $taskId from cache');
     } catch (e) {
-      print(' Error removing task from cache: $e');
+      print('Error removing task from cache: $e');
     }
   }
 
-  Future<void> _updateSubTaskInCache(int taskId, int subTaskId, bool isDone) async {
-    try {
-      final task = await _getCachedTaskById(taskId);
-      if (task != null) {
-        final subTaskIndex = task.subtasks.indexWhere((sub) => sub.id == subTaskId);
-        if (subTaskIndex != -1) {
-          task.subtasks[subTaskIndex] = SubTaskModel(
-            id: subTaskId,
-            title: task.subtasks[subTaskIndex].title,
-            isDone: isDone,
-            taskId: taskId,
-            createdAt: task.subtasks[subTaskIndex].createdAt,
-            updatedAt: DateTime.now(),
-          );
-          
-          await _updateTaskInCache(task);
-          print('Updated subtask $subTaskId in cache');
-        }
+  Future<void> _updateSubTaskInCache(int taskId, int subTaskId, {bool? isDone, String? title}) async {
+    final task = await _getCachedTaskById(taskId);
+    if (task != null) {
+      final idx = task.subtasks.indexWhere((s) => s.id == subTaskId);
+      if (idx != -1) {
+        task.subtasks[idx] = task.subtasks[idx].copyWith(
+          isDone: isDone ?? task.subtasks[idx].isDone,
+          title: title ?? task.subtasks[idx].title,
+          updatedAt: DateTime.now(),
+        );
+        await _updateTaskInCache(task);
+        await _cacheTaskById(task);
+        print('Updated subtask $subTaskId in cache');
       }
-    } catch (e) {
-      print('Error updating subtask in cache: $e');
     }
   }
 
-
-
-Future<TaskModel> updateTask({
-  required int taskId,
-  String? title,
-  String? description,
-  DateTime? startTime,
-  DateTime? deadline,
-  List<SubTaskModel>? subtasks,
-  String? status,
-  // ✅ RECURRENCE PARAMETERS
-  String? recurrenceType,
-  int? recurrenceInterval,
-  List<String>? recurrenceDays,
-  int? recurrenceDayOfMonth,
-  DateTime? recurrenceEndDate,
-}) async {
-  try {
-    final task = await _tasksApi.updateTask(
-      taskId: taskId,
-      title: title,
-      description: description,
-      startTime: startTime,
-      deadline: deadline,
-      subtasks: subtasks,
-      status: status,
-      // ✅ PASS TO API
-      recurrenceType: recurrenceType,
-      recurrenceInterval: recurrenceInterval,
-      recurrenceDays: recurrenceDays,
-      recurrenceDayOfMonth: recurrenceDayOfMonth,
-      recurrenceEndDate: recurrenceEndDate,
-    );
-    
-    await _updateTaskInCache(task);
-    return task;
-  } catch (e) {
-    print('Error updating task: $e');
-    rethrow;
-  }
-}
-
-  // Future<void> _cacheTaskStats(TaskStats stats) async {
-  //   try {
-  //     // Convert TaskStats to a Map for caching
-  //     final statsMap = _taskStatsToMap(stats);
-  //     await _secureStorage.cacheData(
-  //       key: 'task_stats',
-  //       data: statsMap,
-  //       dataType: 'stats',
-  //     );
-  //     print('Cached task stats');
-  //   } catch (e) {
-  //     print('Error caching task stats: $e');
-  //   }
-  // }
-
-  // Future<TaskStats?> _getCachedTaskStats() async {
-  //   try {
-  //     final cachedData = await _secureStorage.getCachedData(
-  //       key: 'task_stats',
-  //       dataType: 'stats',
-  //     );
-      
-  //     if (cachedData == null) {
-  //       return null;
-  //     }
-      
-  //     final statsMap = cachedData as Map<String, dynamic>;
-  //     return _mapToTaskStats(statsMap);
-  //   } catch (e) {
-  //     print('Error reading cached stats: $e');
-  //     return null;
-  //   }
-  // }
-
-  // // Helper methods for TaskStats serialization
-  // Map<String, dynamic> _taskStatsToMap(TaskStats stats) {
-  //   return {
-  //     'totalTasks': stats.totalTasks,
-  //     'completedTasks': stats.completedTasks,
-  //     'pendingTasks': stats.pendingTasks,
-  //     'overdueTasks': stats.overdueTasks,
-  //   };
-  // }
-
-  // TaskStats _mapToTaskStats(Map<String, dynamic> map) {
-  //   return TaskStats(
-  //     totalTasks: map['totalTasks'] ?? 0,
-  //     completedTasks: map['completedTasks'] ?? 0,
-  //     pendingTasks: map['pendingTasks'] ?? 0,
-  //     overdueTasks: map['overdueTasks'] ?? 0,
-  //   );
-  // }
-
-  // Clear all task-related cache
+  // ===================== CLEAR CACHE =====================
   Future<void> clearTaskCache() async {
     try {
       await _secureStorage.clearCacheByDataType('tasks');

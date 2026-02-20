@@ -99,6 +99,19 @@ Future<UserModel?> getCurrentUser() async {
   );
 }
 
+Future<UserModel> fetchUserProfile() async {
+  final user = await _authApi.getProfile();
+
+  // Update secure storage with fresh data
+  await _secureStorage.saveUserData(
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+    imageUrl: user.imageUrl,
+  );
+
+  return user;
+}
   
 Future<void> _saveAuthData(AuthResponse response) async {
   await _secureStorage.saveAccessToken(response.accessToken);

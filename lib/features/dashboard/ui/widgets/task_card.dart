@@ -73,8 +73,7 @@ class TaskCard extends StatelessWidget {
                           if (task.startTime != null && task.deadline != null) ...[
                             Row(
                               children: [
-                                Icon(Icons.access_time,
-                                    size: 12, color: AppColors.textSecondary),
+                           
                                 const SizedBox(width: 5),
                                 Text(
                                   _formatTimeRange(task.startTime!, task.deadline!),
@@ -202,9 +201,6 @@ class TaskCard extends StatelessWidget {
       icon: Icon(Icons.more_vert, color: Colors.grey[400]),
       onSelected: (value) async {
         switch (value) {
-          case 'edit':
-            onEdit?.call();
-            break;
           case 'update':
             onUpdate?.call();
             break;

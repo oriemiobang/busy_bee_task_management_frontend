@@ -1,4 +1,6 @@
 // lib/features/auth/state/auth_provider.dart
+// import 'dart:nativewrappers/_internal/vm/lib/ffi_native_type_patch.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:frontend/features/auth/data/auth_repository.dart';
 import 'package:frontend/features/auth/models/user_model.dart';
@@ -101,6 +103,11 @@ class AuthProvider extends ChangeNotifier {
       }
       // Don't rethrow - allow app to proceed with guest experience
     }
+  }
+
+  Future<void> getCurrentUser() async {
+    final user = await _authRepository.getCurrentUser();
+    _setUser(user);
   }
 
   Future<void> login({

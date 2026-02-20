@@ -32,6 +32,18 @@ class AuthApi {
     }
   }
 
+Future<UserModel> getProfile() async {
+  try {
+    final response = await _dioClient.dio.get(
+      'profile/me',
+    );
+
+    return UserModel.fromJson(response.data);
+  } on DioException catch (e) {
+    throw _handleError(e);
+  }
+}
+
   Future<AuthResponse> changePassword({
     required String currentPassword, 
     required String newPassword
