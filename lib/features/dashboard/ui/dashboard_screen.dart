@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/features/calender/ui/calender_screen.dart';
 import 'package:frontend/features/profile/ui/settings_screen.dart';
 import 'package:frontend/features/stats/ui/stats_screen.dart';
+import 'package:frontend/routes/app_routes.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/core/constants/colors.dart';
 import 'package:frontend/features/dashboard/ui/widgets/custom_bottom_nav.dart';
@@ -147,6 +149,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               itemCount: tasksProvider.tasks.length,
                               itemBuilder: (context, index) {
                                 final task = tasksProvider.tasks[index];
+                             
                                 return // In DashboardScreen's ListView.builder:
                                 TaskCard(
                                   isHome: true,
@@ -161,7 +164,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   onDelete: () => tasksProvider.deleteTask(task.id),
                                   // Optional callbacks:
                                   // onEdit: () => _navigateToEdit(task.id),
-                                  // onUpdate: () => _showStatusUpdateDialog(task.id),
+                                  
+                                  onUpdate: () => context.pushNamed('editTask', pathParameters: {'id': task.id.toString()}, extra: task),
                                 );
                                                               },
                             ),

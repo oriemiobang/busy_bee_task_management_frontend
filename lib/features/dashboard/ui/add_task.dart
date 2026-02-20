@@ -171,6 +171,7 @@ Future<void> _saveTask() async {
 
   @override
   Widget build(BuildContext context) {
+    final taskProvider = context.watch<TasksProvider>();
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(

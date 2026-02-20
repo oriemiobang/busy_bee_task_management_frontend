@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/features/auth/state/auth_provider.dart';
+import 'package:frontend/features/dashboard/model/task_model.dart';
 import 'package:frontend/features/dashboard/ui/add_task.dart';
 import 'package:frontend/features/dashboard/ui/dashboard_screen.dart';
 import 'package:frontend/features/profile/ui/update_password.dart';
@@ -21,8 +22,8 @@ class AppRoutes {
   static const String changePassword = '/account-password';
 
 static const String newTask = '/tasks/new';
-static const String editTask = '/tasks/:id/edit';
-
+// static  String Function(int id) myeditTask = editTask(int id) => '/tasks/$id/edit';
+static String editTask(int id) => '/tasks/$id/edit';
   // Protected routes (require authentication)
   static final _protectedRoutes = [dashboard];
   
@@ -70,13 +71,17 @@ static const String editTask = '/tasks/:id/edit';
           name: 'newTask',
           builder: (context, state) => const NewTaskScreen(),
         ),
-        GoRoute(
-          path: editTask,
-          name: 'editTask',
-          builder: (context, state) => NewTaskScreen(
+     GoRoute(
+        path: '/tasks/:id/edit',
+        name: 'editTask',
+        builder: (context, state) {
+          final task = state.extra as TaskModel?;
+          return NewTaskScreen(
             taskId: int.parse(state.pathParameters['id']!),
-          ),
-        ),
+            existingTask: task,
+          );
+        },
+      ),
       ],
       errorBuilder: (context, state) => _ErrorScreen(state: state),
     );

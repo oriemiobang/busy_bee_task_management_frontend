@@ -249,10 +249,40 @@ Future<TaskModel> updateTask({
   int? recurrenceDayOfMonth,
   DateTime? recurrenceEndDate,
 }) async {
+  _setLoading(true);
+  _setError(null);
+
+  // 1️⃣ Find the current task
+  final index = _tasks.indexWhere((t) => t.id == taskId);
+  if (index == -1) {
+    _setError('Task not found');
+    _setLoading(false);
+    throw Exception('Task not found');
+  }
+
+  final oldTask = _tasks[index];
+
+  // 2️⃣ Update UI immediately (optimistic)
+  final optimisticTask = oldTask.copyWith(
+    title: title ?? oldTask.title,
+    description: description ?? oldTask.description,
+    startTime: startTime ?? oldTask.startTime,
+    deadline: deadline ?? oldTask.deadline,
+    subtasks: subtasks ?? oldTask.subtasks,
+    status: status ?? oldTask.status,
+    recurrenceType: recurrenceType ?? oldTask.recurrenceType,
+    recurrenceInterval: recurrenceInterval ?? oldTask.recurrenceInterval,
+    recurrenceDays: recurrenceDays ?? oldTask.recurrenceDays,
+    recurrenceDayOfMonth: recurrenceDayOfMonth ?? oldTask.recurrenceDayOfMonth,
+    recurrenceEndDate: recurrenceEndDate ?? oldTask.recurrenceEndDate,
+    // updatedAt: DateTime.now(),
+  );
+
+  _tasks[index] = optimisticTask;
+  notifyListeners();
+
   try {
-    _setLoading(true);
-    _setError(null);
-    
+    // 3️⃣ Send update to backend
     final updatedTask = await _tasksRepository.updateTask(
       taskId: taskId,
       title: title,
@@ -261,31 +291,28 @@ Future<TaskModel> updateTask({
       deadline: deadline,
       subtasks: subtasks,
       status: status,
-      // ✅ PASS RECURRENCE DATA TO REPOSITORY
       recurrenceType: recurrenceType,
       recurrenceInterval: recurrenceInterval,
       recurrenceDays: recurrenceDays,
       recurrenceDayOfMonth: recurrenceDayOfMonth,
       recurrenceEndDate: recurrenceEndDate,
     );
-    
-    // Update local state
-    final index = _tasks.indexWhere((t) => t.id == taskId);
-    if (index != -1) {
-      _tasks[index] = updatedTask;
-    }
-    
-    _setLoading(false);
+
+    // 4️⃣ Replace optimistic with server-confirmed task
+    _tasks[index] = updatedTask;
     notifyListeners();
-    
+
+    _setLoading(false);
     return updatedTask;
   } catch (e) {
+    // 5️⃣ Rollback optimistic update if API fails
+    _tasks[index] = oldTask;
     _setError('Failed to update task: ${e.toString()}');
     _setLoading(false);
+    notifyListeners();
     rethrow;
   }
 }
-
 // // REPLACE updateTask method
 // Future<TaskModel> updateTask({
 //   required int taskId,

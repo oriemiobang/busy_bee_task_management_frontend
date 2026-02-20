@@ -229,7 +229,7 @@ Future<TaskModel> updateTask({
     }
 
     final response = await _dioClient.dio.patch(
-      '${ApiEndpoints.tasks}/$taskId',
+      '${ApiEndpoints.updateTask(taskId)}',
       data: data,
     );
 
