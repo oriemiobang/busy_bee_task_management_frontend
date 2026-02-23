@@ -91,4 +91,23 @@ class AccountProvider with ChangeNotifier {
   Future<void> refresh() async {
     await _loadUser();
   }
+
+
+    Future<void> updateAvatar() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final updatedUser =
+          await _accountRepository.updateAvatar(int.parse(user!.id));
+
+      _user = updatedUser;
+
+    } catch (e) {
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

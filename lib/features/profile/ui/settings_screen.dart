@@ -3,24 +3,21 @@ import 'package:frontend/core/constants/colors.dart';
 import 'package:frontend/features/auth/models/user_model.dart';
 import 'package:frontend/features/dashboard/state/tasks_provider.dart';
 import 'package:frontend/features/profile/state/account_provider.dart';
-import 'package:frontend/features/profile/ui/widgets/profile_header.dart';
-import 'package:frontend/features/profile/ui/widgets/settings_items.dart';
-import 'package:frontend/features/profile/ui/widgets/settings_section.dart';
 import 'package:frontend/routes/app_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
 import 'package:frontend/features/auth/state/auth_provider.dart';
-import 'package:frontend/features/auth/ui/login_screen.dart';
 
 class AccountSettingsScreen extends StatefulWidget {
   const AccountSettingsScreen({super.key});
 
   @override
-  State<AccountSettingsScreen> createState() => _AccountSettingsScreenState();
+  State<AccountSettingsScreen> createState() =>
+      _AccountSettingsScreenState();
 }
 
-class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
+class _AccountSettingsScreenState
+    extends State<AccountSettingsScreen> {
   final _nameController = TextEditingController();
   final _oldPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
@@ -45,17 +42,15 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final accountProvider = context.watch<AccountProvider>();
+    final accountProvider =
+        context.watch<AccountProvider>();
     final user = accountProvider.user;
 
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        forceMaterialTransparency: true,
         backgroundColor: Colors.transparent,
-        automaticallyImplyLeading: false,
         elevation: 0,
-       
         title: const Text(
           'Account Settings',
           style: TextStyle(color: Colors.white),
@@ -63,169 +58,262 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
         centerTitle: true,
       ),
       body: accountProvider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
           : _buildContent(user),
     );
   }
 
   Widget _buildContent(UserModel? user) {
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
+      padding: const EdgeInsets.symmetric(
+          horizontal: 20, vertical: 24),
+      child: Column(
+        children: [
+          _buildAvatarSection(user),
+          const SizedBox(height: 40),
+
+          _buildSectionTitle("PERSONAL INFORMATION"),
+          _buildTile(
+            icon: Icons.person,
+            title: "Name",
+            subtitle: user?.name ?? "",
+            onTap: () => _showNameDialog(),
+          ),
+          _buildTile(
+            icon: Icons.email,
+            title: "Email",
+            subtitle: user?.email ?? "",
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content:
+                      Text("Email cannot be changed"),
+                  backgroundColor:
+                      AppColors.surfaceDark,
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 30),
+
+          _buildSectionTitle("SECURITY"),
+          _buildTile(
+            icon: Icons.lock,
+            title: "Change Password",
+            onTap: () =>
+                context.push(AppRoutes.changePassword),
+          ),
+
+          const SizedBox(height: 30),
+
+          _buildSectionTitle("DANGER ZONE"),
+          _buildTile(
+            icon: Icons.logout,
+            title: "Log out",
+            isDanger: true,
+            onTap: _showLogoutDialog,
+          ),
+
+          const SizedBox(height: 40),
+
+          Text(
+            "Version 2.4.1 (Build 890)",
+            style: TextStyle(
+              color: Colors.grey[500],
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ================= AVATAR =================
+
+  Widget _buildAvatarSection(UserModel? user) {
+    final accountProvider =
+        context.watch<AccountProvider>();
+
+    return Column(
+      children: [
+        Stack(
+          alignment: Alignment.center,
           children: [
-            // Profile Header
-            const ProfileHeader(),
-            const SizedBox(height: 32),
+            GestureDetector(
+              onTap: () async {
+                try {
+                  await context
+                      .read<AccountProvider>()
+                      .updateAvatar();
 
-            // Personal Information Section
-            SettingsSection(
-              title: 'PERSONAL INFORMATION',
-              children: [
-                SettingsItem(
-                  title: 'Name',
-                  subtitle: user?.name,
-                  icon: Icons.person,
-                  onTap: () => _showNameDialog(context),
-                ),
-                SettingsItem(
-                  title: 'Email',
-                  subtitle: user?.email,
-                  icon: Icons.email,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Email cannot be changed',
-                        style: TextStyle(color: Colors.white),),
-                        backgroundColor: AppColors.surfaceDark,
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Security Section
-            SettingsSection(
-              title: 'SECURITY',
-              children: [
-                SettingsItem(
-                  title: 'Change Password',
-                  subtitle: '',
-                  icon: Icons.lock,
-                  onTap: () => context.push(AppRoutes.changePassword),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Danger Zone Section
-            SettingsSection(
-              title: 'DANGER ZONE',
-              children: [
-                SettingsItem(
-                  title: 'Log out',
-                  icon: Icons.delete,
-                  isDangerous: true,
-                  onTap: () => _showDeactivateDialog(context),
-                ),
-              ],
-            ),
-            const SizedBox(height: 40),
-
-            // Version info
-            Center(
-              child: Text(
-                'Version ${_getAppVersion()}',
-                style: TextStyle(
-                  color: Colors.grey[500],
-                  fontSize: 12,
-                ),
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                    const SnackBar(
+                      content:
+                          Text("Avatar updated"),
+                      backgroundColor:
+                          Colors.green,
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                    SnackBar(
+                      content:
+                          Text("Upload failed: $e"),
+                      backgroundColor:
+                          Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: CircleAvatar(
+                radius: 55,
+                backgroundColor: Colors.grey[800],
+                backgroundImage:
+                    user?.imageUrl != null
+                        ? NetworkImage(
+                            user!.imageUrl!)
+                        : null,
+                child:
+                    user?.imageUrl == null
+                        ? const Icon(
+                            Icons.person,
+                            size: 60,
+                            color: Colors.white,
+                          )
+                        : null,
               ),
             ),
-            const SizedBox(height: 20),
+            if (accountProvider.isLoading)
+              const CircularProgressIndicator(),
           ],
+        ),
+        const SizedBox(height: 12),
+        Text(
+          user?.name ?? "",
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          "Tap avatar to change",
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 13,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ================= SECTIONS =================
+
+  Widget _buildSectionTitle(String title) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding:
+            const EdgeInsets.only(bottom: 12),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: Colors.grey[500],
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
   }
 
-  String _getAppVersion() {
-    return '2.4.1 (Build 890)';
+  Widget _buildTile({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    VoidCallback? onTap,
+    bool isDanger = false,
+  }) {
+    return ListTile(
+      onTap: onTap,
+      leading: Icon(
+        icon,
+        color:
+            isDanger ? Colors.red : Colors.white,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          color:
+              isDanger ? Colors.red : Colors.white,
+        ),
+      ),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: const TextStyle(
+                  color: Colors.grey),
+            )
+          : null,
+    );
   }
 
-  void _showNameDialog(BuildContext context) {
-    final accountProvider = context.read<AccountProvider>();
-    final authProvider = context.read<AuthProvider>();
-  
-    final user = accountProvider.user;
+  // ================= DIALOGS =================
 
-    _nameController.text = user?.name ?? '';
+  void _showNameDialog() {
+    final accountProvider =
+        context.read<AccountProvider>();
+    _nameController.text =
+        accountProvider.user?.name ?? "";
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (_) => AlertDialog(
         backgroundColor: Colors.grey[900],
         title: const Text(
-          'Update Name',
-          style: TextStyle(color: Colors.white),
+          "Update Name",
+          style:
+              TextStyle(color: Colors.white),
         ),
         content: TextField(
           controller: _nameController,
-          decoration: InputDecoration(
-            hintText: 'Your full name',
-            hintStyle: TextStyle(color: Colors.grey[500]),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey[700]!),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: const Color(0xFF6366F1)),
-            ),
+          style:
+              const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: "Your full name",
           ),
-          style: const TextStyle(color: Colors.white),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey),
-            ),
+            onPressed: () =>
+                Navigator.pop(context),
+            child: const Text("Cancel"),
           ),
           TextButton(
             onPressed: () async {
-              if (_nameController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Name cannot be empty'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                return;
-              }
+              if (_nameController.text
+                  .trim()
+                  .isEmpty) return;
 
-              try {
-                await accountProvider.updateUserName(_nameController.text);
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Name updated successfully'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to update name: $e'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
+              await accountProvider
+                  .updateUserName(
+                      _nameController.text);
+
+              if (!mounted) return;
+
+              Navigator.pop(context);
             },
             child: const Text(
-              'Save',
-              style: TextStyle(color: Color(0xFF6366F1)),
+              "Save",
+              style: TextStyle(
+                  color:
+                      Color(0xFF6366F1)),
             ),
           ),
         ],
@@ -233,169 +321,49 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
     );
   }
 
-  void _showPasswordDialog(BuildContext context) {
-    final accountProvider = context.read<AccountProvider>();
-    
+  void _showLogoutDialog() {
+    final authProvider =
+        context.read<AuthProvider>();
+    final tasksProvider =
+        context.read<TasksProvider>();
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (_) => AlertDialog(
         backgroundColor: Colors.grey[900],
         title: const Text(
-          'Change Password',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _oldPasswordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                hintText: 'Current password',
-                hintStyle: TextStyle(color: Colors.grey[500]),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey[700]!),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: const Color(0xFF6366F1)),
-                ),
-              ),
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _newPasswordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                hintText: 'New password',
-                hintStyle: TextStyle(color: Colors.grey[500]),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey[700]!),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: const Color(0xFF6366F1)),
-                ),
-              ),
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              if (_oldPasswordController.text.isEmpty ||
-                  _newPasswordController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('All fields are required'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                return;
-              }
-
-              try {
-                await accountProvider.updatePassword(
-                  oldPassword: _oldPasswordController.text,
-                  newPassword: _newPasswordController.text,
-                );
-                Navigator.pop(context);
-                // User will be logged out after password change
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Password changed successfully. You will be logged out.'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-                // Navigate to login screen
-                Future.delayed(const Duration(seconds: 2), () {
-                  if (context.mounted) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LoginScreen(),
-                      ),
-                      (route) => false,
-                    );
-                  }
-                });
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to change password: $e'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
-            child: const Text(
-              'Update',
-              style: TextStyle(color: Color(0xFF6366F1)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeactivateDialog(BuildContext context) {
-     final authProvider = context.read<AuthProvider>();
-       final  tasksProvider = context.read<TasksProvider>();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.grey[900],
-        title: const Text(
-          'Log out',
-          style: TextStyle(color: Colors.white),
+          "Log out",
+          style:
+              TextStyle(color: Colors.white),
         ),
         content: const Text(
-          'Are you sure you want to deactivate your account? This action cannot be undone.',
-          style: TextStyle(color: Colors.grey),
+          "Are you sure you want to log out?",
+          style:
+              TextStyle(color: Colors.grey),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey),
-            ),
+            onPressed: () =>
+                Navigator.pop(context),
+            child: const Text("Cancel"),
           ),
           TextButton(
-         onPressed: () async {
-  // Close the dialog FIRST
-  context.pop();
+            onPressed: () async {
+              Navigator.pop(context);
 
-  // Logout and wait for it to finish
-  await authProvider.logout();
+              await authProvider.logout();
 
-  if (!context.mounted) return;
+              if (!mounted) return;
 
-  // Reset tab index
-  tasksProvider.setCurrentIndex(0);
+              tasksProvider
+                  .setCurrentIndex(0);
 
-  // Navigate immediately
-  context.go(AppRoutes.login);
-
-  // Show snackbar on next frame (safer)
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Account logged out successfully'),
-      backgroundColor: Colors.green,
-    ),
-  );
-},
+              context.go(AppRoutes.login);
+            },
             child: const Text(
-              'Log out',
-              style: TextStyle(color: Colors.red),
+              "Log out",
+              style:
+                  TextStyle(color: Colors.red),
             ),
           ),
         ],

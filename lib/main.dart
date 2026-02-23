@@ -17,9 +17,15 @@ import 'package:frontend/features/stats/data/stats_repository.dart';
 import 'package:frontend/features/stats/state/stats_provoder.dart';
 import 'package:frontend/routes/app_routes.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+  url: 'https://zraflqvymigtirrotmko.supabase.co',
+  anonKey: 'eeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyYWZscXZ5bWlndGlycm90bWtvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NTE2MTUsImV4cCI6MjA4NjAyNzYxNX0.wkM6o1muaL6AyEZ9TIZ0NGm9Bzh58KUYaE9Q_7ImpEQ',
+);
   
   runApp(
     // CRITICAL: Register dependencies IN CORRECT ORDER (bottom-up)

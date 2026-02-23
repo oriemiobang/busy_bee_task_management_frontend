@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:frontend/core/storage/secure_storage.dart';
 // import 'package:frontend/features/account/api/account_api.dart';
 import 'package:frontend/features/auth/data/auth_repository.dart';
 import 'package:frontend/features/auth/models/user_model.dart';
 import 'package:frontend/features/profile/data/account_api.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AccountRepository {
   final AccountApi _accountApi;
@@ -91,5 +95,42 @@ class AccountRepository {
       print('❌ Error refreshing user: $e');
       return null;
     }
+  }
+
+    final SupabaseClient _supabase = Supabase.instance.client;
+
+  Future<UserModel> updateAvatar(int userId) async {
+    final picker = ImagePicker();
+    final picked =
+        await picker.pickImage(source: ImageSource.gallery);
+
+    if (picked == null) {
+      throw Exception('No image selected');
+    }
+
+    final file = File(picked.path);
+
+    final fileName =
+        'avatars/$userId/${DateTime.now().millisecondsSinceEpoch}.png';
+
+    // 1️⃣ Upload to Supabase
+    await _supabase.storage
+        .from('busy_bee_bucket')
+        .upload(
+          fileName,
+          file,
+          fileOptions: const FileOptions(upsert: true),
+        );
+
+    // 2️⃣ Get public URL
+    final imageUrl = _supabase.storage
+        .from('busy_bee_bucket')
+        .getPublicUrl(fileName);
+
+    // 3️⃣ Save URL in backend
+    final updatedUser =
+        await _accountApi.updateAvatar(imageUrl);
+
+    return updatedUser;
   }
 }

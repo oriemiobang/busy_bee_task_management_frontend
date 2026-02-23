@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/core/constants/api_endpoints.dart';
 import 'package:frontend/core/network/dio_client.dart';
+import 'package:frontend/features/auth/models/user_model.dart';
 
 class AccountApi {
   final DioClient _dioClient;
@@ -35,5 +36,16 @@ class AccountApi {
       print('Password API error: ${e.message}');
       rethrow;
     }
+  }
+
+    Future<UserModel> updateAvatar(String imageUrl) async {
+    final response = await _dioClient.dio.put(
+      '/profile/avatar',
+      data: {
+        'imageUrl': imageUrl,
+      },
+    );
+
+    return UserModel.fromJson(response.data);
   }
 }
