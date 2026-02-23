@@ -276,4 +276,22 @@ class AuthProvider extends ChangeNotifier {
   void clearError() {
     _setError(null);
   }
+
+
+  Future<void> loginWithGoogle() async {
+  try {
+    _setLoading(true);
+    _setError(null);
+
+    final response = await _authRepository.loginWithGoogle();
+
+    _setUser(response.user);
+
+    _setLoading(false);
+  } catch (e) {
+    _setError(e.toString());
+    _setLoading(false);
+    rethrow;
+  }
+}
 }

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/core/constants/api_endpoints.dart';
 import 'package:frontend/core/network/dio_client.dart';
+import 'package:frontend/features/auth/models/user_model.dart';
 import 'package:frontend/features/dashboard/model/task_model.dart';
 import 'package:frontend/features/dashboard/model/task_stats.dart';
 
@@ -318,6 +319,8 @@ String _handleError(DioException e) {
       throw _handleError(e);
     }
   }
+
+
 
 
 }

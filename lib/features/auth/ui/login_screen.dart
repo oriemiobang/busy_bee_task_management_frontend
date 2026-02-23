@@ -265,8 +265,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     OutlinedButton.icon(
                       onPressed: authProvider.isLoading
                           ? null
-                          : () {
-                              // Implement Google login
+                          : () async {
+                              try {
+                                await authProvider.loginWithGoogle();
+                                context.go(AppRoutes.dashboard);
+                              } catch (e) {
+                                print(e);
+                              }
                             },
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.white,

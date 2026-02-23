@@ -1,4 +1,4 @@
-package com.example.frontend
+package com.busybee
 
 import io.flutter.embedding.android.FlutterActivity
 

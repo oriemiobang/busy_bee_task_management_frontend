@@ -111,4 +111,18 @@ Future<UserModel> getProfile() async {
     }
     return e.message ?? 'Network error occurred';
   }
+  Future<AuthResponse> googleLogin(String idToken) async {
+  try {
+    final response = await _dioClient.dio.post(
+      '/auth/google',
+      data: {
+        "idToken": idToken,
+      },
+    );
+
+    return AuthResponse.fromJson(response.data);
+  } on DioException catch (e) {
+    throw _handleError(e);
+  }
+}
 }
