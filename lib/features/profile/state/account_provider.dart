@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
-// import 'package:frontend/features/account/repository/account_repository.dart';
 import 'package:frontend/features/auth/models/user_model.dart';
-import 'package:frontend/features/dashboard/model/task_model.dart';
 import 'package:frontend/features/profile/data/account_repository.dart';
 
 class AccountProvider with ChangeNotifier {

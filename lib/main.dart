@@ -18,7 +18,6 @@ import 'package:frontend/features/stats/state/stats_provoder.dart';
 import 'package:frontend/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -28,7 +27,7 @@ void main() async{
 );
   
   runApp(
-    // CRITICAL: Register dependencies IN CORRECT ORDER (bottom-up)
+
     MultiProvider(
       providers: [
         // 1. Core dependencies (no dependencies)
@@ -57,16 +56,18 @@ void main() async{
           return provider;
         }),
         ChangeNotifierProvider(create: (context) => 
-          TasksProvider(context.read<TasksRepository>())),
+          TasksProvider(context.read<TasksRepository>(),),),
 
                ChangeNotifierProvider(create: (context) => 
-          CalendarProvider(context.read<TasksProvider>())),
+          CalendarProvider(context.read<TasksProvider>(),),),
 
           ChangeNotifierProvider(create: (context) => 
           StatsProvider(StatsRepository(
-            StatsApi(context.read<DioClient>()),
+            StatsApi(context.read<DioClient>(),),
             context.read<SecureStorage>(),
-          )),),
+          ),
+        ),
+       ),
 
      ChangeNotifierProvider(create: (context) => 
       AccountProvider(AccountRepository(
@@ -75,11 +76,7 @@ void main() async{
         context.read<SecureStorage>(),
       ),),
     ),
-
-
-    // In main.dart
-
-      ],
+  ],
       child: const MyApp(),
     ),
   );
@@ -90,12 +87,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //  CRITICAL: Create router HERE where context has providers
     final router = AppRoutes.router(context);
-
-    
     return MaterialApp.router(
-      title: 'Productivity App',
+      title: 'Busy Bee',
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
         useMaterial3: true,
@@ -103,7 +97,6 @@ class MyApp extends StatelessWidget {
           seedColor: const Color(0xFF6366F1),
           brightness: Brightness.dark,
         ),
-        // scaffoldBackgroundColor: Colors.black,
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.black,
           elevation: 0,
