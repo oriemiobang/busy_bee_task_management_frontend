@@ -1,9 +1,8 @@
 import 'package:frontend/core/storage/secure_storage.dart';
 import 'package:frontend/features/auth/data/auth_api.dart';
 import 'package:frontend/features/auth/models/user_model.dart';
-import 'package:frontend/features/dashboard/state/tasks_provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-// import 'package:frontend/features/dashboard/state/tasks_provider.dart';
+
 
 class AuthRepository {
   final AuthApi _authApi;
