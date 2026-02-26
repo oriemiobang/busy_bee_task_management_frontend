@@ -1,9 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/core/constants/api_endpoints.dart';
 import 'package:frontend/core/network/dio_client.dart';
-import 'package:frontend/features/auth/models/user_model.dart';
 import 'package:frontend/features/dashboard/model/task_model.dart';
-import 'package:frontend/features/dashboard/model/task_stats.dart';
+
 
 
 class TasksApi {
@@ -107,7 +106,7 @@ Future<TaskModel> updateSubTask({
   return TaskModel.fromJson(response.data);
 }
 
-// Remove getTodaysTasks() method since you don't need it
+
   Future<List<TaskModel>> getTodaysTasks() async {
     try {
       final response = await _dioClient.dio.get(
@@ -134,9 +133,7 @@ Future<TaskModel> updateSubTask({
     }
   }
 
-// REPLACE your createTask method with this FIXED version
-// REPLACE createTask method
-// REPLACE createTask method
+
 Future<TaskModel> createTask({
   required String title,
   required String description,
@@ -151,10 +148,10 @@ Future<TaskModel> createTask({
   DateTime? recurrenceEndDate,
 }) async {
   try {
-    // ✅ CRITICAL: Backend expects SINGULAR "subTask" field with specific structure
+    // CRITICAL: Backend expects SINGULAR "subTask" field with specific structure
     final subTaskPayload = subtasks.map((s) => {
       'title': s.title,
-      'isDone': s.isDone, // ✅ Must be boolean (not null)
+      'isDone': s.isDone, // Must be boolean (not null)
     }).toList();
 
     final response = await _dioClient.dio.post(
@@ -167,7 +164,7 @@ Future<TaskModel> createTask({
         'status': status,
         'sort_order': 1, // Required by backend
         
-        // ✅ RECURRENCE FIELDS (match Prisma schema exactly)
+        // RECURRENCE FIELDS (match Prisma schema exactly)
         if (recurrenceType != null) 'recurrenceType': recurrenceType,
         if (recurrenceInterval != null) 'recurrenceInterval': recurrenceInterval,
         if (recurrenceDays != null && recurrenceDays.isNotEmpty) 
@@ -176,7 +173,7 @@ Future<TaskModel> createTask({
         if (recurrenceEndDate != null) 
           'recurrenceEndDate': recurrenceEndDate.toIso8601String(),
         
-        // ✅ SUBTASKS: Singular field name + proper structure
+        // SUBTASKS: Singular field name + proper structure
         'subtasks': subTaskPayload, // NOT 'subtasks'!
       },
     );
@@ -195,7 +192,6 @@ Future<TaskModel> updateTask({
   DateTime? deadline,
   List<SubTaskModel>? subtasks,
   String? status,
-  // ✅ RECURRENCE PARAMETERS
   String? recurrenceType,
   int? recurrenceInterval,
   List<String>? recurrenceDays,
@@ -210,8 +206,7 @@ Future<TaskModel> updateTask({
     if (startTime != null) data['start_time'] = startTime.toIso8601String();
     if (deadline != null) data['deadline'] = deadline.toIso8601String();
     if (status != null) data['status'] = status;
-    
-    // ✅ CONDITIONALLY ADD RECURRENCE FIELDS
+  
     if (recurrenceType != null) data['recurrenceType'] = recurrenceType;
     if (recurrenceInterval != null) data['recurrenceInterval'] = recurrenceInterval;
     if (recurrenceDays != null) data['recurrenceDays'] = recurrenceDays;
