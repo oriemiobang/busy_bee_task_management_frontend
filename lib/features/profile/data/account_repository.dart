@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:frontend/core/storage/secure_storage.dart';
-// import 'package:frontend/features/account/api/account_api.dart';
 import 'package:frontend/features/auth/data/auth_repository.dart';
 import 'package:frontend/features/auth/models/user_model.dart';
 import 'package:frontend/features/profile/data/account_api.dart';
@@ -22,10 +21,10 @@ class AccountRepository {
   // Update user name
   Future<void> updateUserName(String newName) async {
     try {
-      // 1. Update name via API
+      //Update name via API
       await _accountApi.updateUserName(newName);
       
-      // 2. Update stored user data
+      // Update stored user data
       final userId = await _secureStorage.getUserId();
       final email = await _secureStorage.getUserEmail();
       final image = await _secureStorage.getUserImage();
@@ -39,9 +38,9 @@ class AccountRepository {
         );
       }
       
-      print('✅ Name updated successfully');
+      print('Name updated successfully');
     } catch (e) {
-      print('❌ AccountRepository error: $e');
+      print('AccountRepository error: $e');
       rethrow;
     }
   }
@@ -58,10 +57,10 @@ class AccountRepository {
         newPassword: newPassword,
       );
       
-      // 2. Clear auth tokens (user will need to re-login)
+      //Clear auth tokens (user will need to re-login)
       await _secureStorage.clearAll();
       
-      print('✅ Password updated successfully, user logged out');
+      print('Password updated successfully, user logged out');
     } catch (e) {
       print('❌ Password update error: $e');
       rethrow;
@@ -92,7 +91,7 @@ class AccountRepository {
         authProvider: 'LOCAL',
       );
     } catch (e) {
-      print('❌ Error refreshing user: $e');
+      print('Error refreshing user: $e');
       return null;
     }
   }
@@ -113,7 +112,7 @@ class AccountRepository {
     final fileName =
         'avatars/$userId/${DateTime.now().millisecondsSinceEpoch}.png';
 
-    // 1️⃣ Upload to Supabase
+    //  Upload to Supabase
     await _supabase.storage
         .from('busy_bee_bucket')
         .upload(
@@ -122,12 +121,12 @@ class AccountRepository {
           fileOptions: const FileOptions(upsert: true),
         );
 
-    // 2️⃣ Get public URL
+    // Get public URL
     final imageUrl = _supabase.storage
         .from('busy_bee_bucket')
         .getPublicUrl(fileName);
 
-    // 3️⃣ Save URL in backend
+    // Save URL in backend
     final updatedUser =
         await _accountApi.updateAvatar(imageUrl);
 
