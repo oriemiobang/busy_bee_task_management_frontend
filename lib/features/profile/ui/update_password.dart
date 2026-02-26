@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/features/auth/state/auth_provider.dart';
-import 'package:frontend/routes/app_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
