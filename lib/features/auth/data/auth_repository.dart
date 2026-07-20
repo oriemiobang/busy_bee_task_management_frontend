@@ -61,18 +61,21 @@ class AuthRepository {
   
   Future<void> logout() async {
     try {
-       
-        await _secureStorage.clearAll();
-      
-      // await _authApi.logout();
+      await _authApi.logout();
+    } catch (e) {
+      // Ignore API errors, ensure local data clears
     } finally {
-    
+      await _secureStorage.clearAll();
     }
   }
 
   
   Future<void> forgotPassword(String email) async {
     await _authApi.forgotPassword(email);
+  }
+
+  Future<void> resetPassword(String token, String newPassword) async {
+    await _authApi.resetPassword(token, newPassword);
   }
   
   Future<bool> isLoggedIn() async {

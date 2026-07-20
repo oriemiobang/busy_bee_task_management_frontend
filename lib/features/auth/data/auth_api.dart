@@ -92,6 +92,29 @@ Future<UserModel> getProfile() async {
       throw _handleError(e);
     }
   }
+
+  Future<void> resetPassword(String token, String newPassword) async {
+    try {
+      await _dioClient.dio.post(
+        ApiEndpoints.resetPassword,
+        data: {
+          'token': token,
+          'newPassword': newPassword,
+        },
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+  
+  Future<void> logout() async {
+    try {
+      await _dioClient.dio.post(ApiEndpoints.logout);
+    } on DioException catch (e) {
+      // It's okay if logout API fails (e.g. token expired), we still clear local storage
+      throw _handleError(e);
+    }
+  }
   
   String _handleError(DioException e) {
     if (e.response != null) {

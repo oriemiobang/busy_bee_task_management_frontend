@@ -247,6 +247,30 @@ class AuthProvider extends ChangeNotifier {
       rethrow;
     }
   }
+  
+  Future<void> resetPassword({required String token, required String newPassword}) async {
+    try {
+      _setLoading(true);
+      _setError(null);
+      
+      await _authRepository.resetPassword(token, newPassword);
+      
+      _setLoading(false);
+      
+      if (kDebugMode) {
+        print('Password reset successful');
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('Reset password error: $e');
+        print('Stack trace: $stackTrace');
+      }
+      _setError(e.toString());
+      _setLoading(false);
+      rethrow;
+    }
+  }
+
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword
