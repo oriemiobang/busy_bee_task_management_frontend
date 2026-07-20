@@ -33,4 +33,10 @@ static const String updatePassword = '/auth/update-password';
   
   // Dashboard endpoints
   static const String dashboard = '/dashboard';
+
+  // Notification endpoints
+  static const String notifications = '/notifications';
+  static String markNotificationRead(int id) => '/notifications/$id/read';
+  static const String markAllNotificationsRead = '/notifications/read-all';
+  static const String fcmToken = '/auth/fcm-token';
 }

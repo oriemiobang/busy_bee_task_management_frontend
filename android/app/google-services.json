@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1008172033913",
+    "project_id": "busy-bee-7e457",
+    "storage_bucket": "busy-bee-7e457.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1008172033913:android:a0571859aa914fb0fe31a8",
+        "android_client_info": {
+          "package_name": "com.busybee"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsLjMj4Tbii7b4_OthaJf01k2M6EKb3nI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

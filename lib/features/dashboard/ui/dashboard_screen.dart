@@ -1,6 +1,8 @@
 // lib/features/dashboard/ui/screens/dashboard_screen.dart
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/features/calender/ui/calender_screen.dart';
+import 'package:frontend/features/notifications/state/notification_provider.dart';
 import 'package:frontend/features/profile/ui/settings_screen.dart';
 import 'package:frontend/features/stats/ui/stats_screen.dart';
 import 'package:frontend/routes/app_routes.dart';
@@ -27,12 +29,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    // Preload tasks when screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<TasksProvider>().ensureTasksLoaded();
+        context.read<NotificationProvider>().fetchNotifications();
+        _syncFcmToken();
       }
     });
+  }
+
+  Future<void> _syncFcmToken() async {
+    try {
+      final messaging = FirebaseMessaging.instance;
+      final settings = await messaging.requestPermission();
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        final token = await messaging.getToken();
+        if (token != null && mounted) {
+          await context.read<NotificationProvider>().syncFcmToken(token);
+        }
+      }
+    } catch (e) {
+      debugPrint('FCM sync error: $e');
+    }
   }
 
   Future<void> _refreshTasks() async {
