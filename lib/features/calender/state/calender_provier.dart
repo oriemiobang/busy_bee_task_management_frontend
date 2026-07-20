@@ -9,28 +9,48 @@ class CalendarProvider with ChangeNotifier {
   DateTime _selectedDate = DateTime.now();
   DateTime _currentDate = DateTime.now();
 
+  List<TaskModel> _occurrences = [];
+  bool _isLoadingOccurrences = false;
+
   CalendarProvider(this._tasksProvider) {
     //  Listen to task changes for real-time updates
-    _tasksProvider.addListener(_onTasksUpdated);
+    _tasksProvider.addListener(_fetchOccurrences);
     //  Initialize with today's date
     _selectedDate = DateTime.now();
     _currentDate = DateTime(_selectedDate.year, _selectedDate.month, 1);
+    _fetchOccurrences();
   }
 
-  void _onTasksUpdated() => notifyListeners();
+  Future<void> _fetchOccurrences() async {
+    _isLoadingOccurrences = true;
+    notifyListeners();
+
+    try {
+      final start = DateTime(_currentDate.year, _currentDate.month, 1);
+      final end = DateTime(_currentDate.year, _currentDate.month + 1, 0, 23, 59, 59);
+
+      _occurrences = await _tasksProvider.getOccurrences(start, end);
+    } catch (e) {
+      print('Failed to fetch occurrences: $e');
+      _occurrences = [];
+    } finally {
+      _isLoadingOccurrences = false;
+      notifyListeners();
+    }
+  }
 
   //  Get ALL tasks directly from TasksProvider (single source of truth)
-  List<TaskModel> get allTasks => _tasksProvider.tasks;
+  List<TaskModel> get allTasks => _occurrences;
 
   //  Get tasks for SELECTED date (reactive)
-  List<TaskModel> get tasksForSelectedDate => allTasks.where((task) =>
+  List<TaskModel> get tasksForSelectedDate => _occurrences.where((task) =>
         task.createdAt.year == _selectedDate.year &&
         task.createdAt.month == _selectedDate.month &&
         task.createdAt.day == _selectedDate.day).toList();
 
   //  Get task count for ANY date (for dot indicators)
   int getTaskCountForDate(DateTime date) {
-    return allTasks.where((task) =>
+    return _occurrences.where((task) =>
         task.createdAt.year == date.year &&
         task.createdAt.month == date.month &&
         task.createdAt.day == date.day).length;
@@ -39,7 +59,7 @@ class CalendarProvider with ChangeNotifier {
   // State getters
   DateTime get selectedDate => _selectedDate;
   DateTime get currentDate => _currentDate;
-  bool get isLoading => _tasksProvider.isLoading;
+  bool get isLoading => _isLoadingOccurrences || _tasksProvider.isLoading;
   String? get error => _tasksProvider.error;
 
   //  CRITICAL: Select ANY date (handles cross-month navigation)
@@ -54,12 +74,12 @@ class CalendarProvider with ChangeNotifier {
 
   void goToPreviousMonth() {
     _currentDate = DateTime(_currentDate.year, _currentDate.month - 1, 1);
-    notifyListeners();
+    _fetchOccurrences();
   }
 
   void goToNextMonth() {
     _currentDate = DateTime(_currentDate.year, _currentDate.month + 1, 1);
-    notifyListeners();
+    _fetchOccurrences();
   }
 
   void goToToday() {
@@ -87,7 +107,7 @@ class CalendarProvider with ChangeNotifier {
 
   @override
   void dispose() {
-    _tasksProvider.removeListener(_onTasksUpdated);
+    _tasksProvider.removeListener(_fetchOccurrences);
     super.dispose();
   }
 }

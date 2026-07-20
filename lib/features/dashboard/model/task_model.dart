@@ -120,6 +120,7 @@ class TaskModel {
     DateTime? startTime,
     DateTime? deadline,
     String? status,
+    DateTime? createdAt,
     List<SubTaskModel>? subtasks,
     // ✅ RECURRENCE PARAMETERS
     String? recurrenceType,
@@ -135,7 +136,7 @@ class TaskModel {
       startTime: startTime ?? this.startTime,
       deadline: deadline ?? this.deadline,
       status: status ?? this.status,
-      createdAt: createdAt,
+      createdAt: createdAt ?? this.createdAt,
       updatedAt: DateTime.now(),
       userId: userId,
       subtasks: subtasks ?? this.subtasks,

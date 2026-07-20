@@ -11,6 +11,18 @@ class TasksRepository {
 
   TasksRepository(this._tasksApi, this._secureStorage);
 
+  // ===================== RECURRENCES =====================
+  Future<List<TaskModel>> getOccurrences(DateTime start, DateTime end) async {
+    try {
+      print('Fetching occurrences from API ($start to $end)...');
+      final tasks = await _tasksApi.getOccurrences(start, end);
+      return tasks;
+    } catch (e) {
+      print('Error in getOccurrences: $e');
+      return [];
+    }
+  }
+
   // ===================== TASK FETCH =====================
   Future<List<TaskModel>> getTasks({String? status, DateTime? date}) async {
     try {
@@ -256,8 +268,7 @@ class TasksRepository {
       final cachedData = await _secureStorage.getCachedData(key: 'task_$taskId', dataType: 'tasks');
       if (cachedData != null) return TaskModel.fromJson(cachedData);
       final allTasks = await _getCachedTasks(_generateCacheKey());
-      final foundTask = allTasks.firstWhere((t) => t.id == taskId, orElse: () => null as TaskModel);
-      return foundTask;
+      return allTasks.firstWhere((t) => t.id == taskId);
     } catch (_) {
       return null;
     }

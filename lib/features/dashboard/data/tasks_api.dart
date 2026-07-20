@@ -133,6 +133,33 @@ Future<TaskModel> updateSubTask({
     }
   }
 
+  Future<List<TaskModel>> getOccurrences(DateTime start, DateTime end) async {
+    try {
+      final response = await _dioClient.dio.get(
+        ApiEndpoints.tasksOccurrences,
+        queryParameters: {
+          'start': start.toIso8601String(),
+          'end': end.toIso8601String(),
+        },
+      );
+      
+      if (response.data is List) {
+        // Map occurrences into TaskModels for the frontend
+        return (response.data as List).map((occ) {
+          final task = TaskModel.fromJson(occ['task']);
+          // Override the date fields with the occurrence date so it appears on the correct calendar day
+          return task.copyWith(
+            createdAt: DateTime.parse(occ['occurrenceDate']),
+            startTime: DateTime.parse(occ['occurrenceDate']),
+          );
+        }).toList();
+      }
+      return [];
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
 
 Future<TaskModel> createTask({
   required String title,

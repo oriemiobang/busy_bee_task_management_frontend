@@ -29,6 +29,7 @@ static const String updatePassword = '/auth/update-password';
   // Task endpoints
   static const String tasks = '/tasks/get-tasks';
   static String taskById(String id) => '/tasks/$id';
+  static const String tasksOccurrences = '/tasks/occurrences';
   static const String taskStats = '/tasks/stats';
   
   // Dashboard endpoints

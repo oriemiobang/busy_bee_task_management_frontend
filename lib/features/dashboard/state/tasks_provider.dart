@@ -97,6 +97,10 @@ class TasksProvider extends ChangeNotifier {
     }
   }
 
+  Future<List<TaskModel>> getOccurrences(DateTime start, DateTime end) async {
+    return _tasksRepository.getOccurrences(start, end);
+  }
+
   // ───────────────────────── Task Status ─────────────────────────
 
   Future<void> toggleTaskStatus(int taskId) async {
