@@ -25,6 +25,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:frontend/core/constants/env.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:frontend/app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -107,19 +108,4 @@ void main() async {
       child: const MyApp(),
     ),
   );
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final router = AppRoutes.router(context);
-    return MaterialApp.router(
-      title: 'Busy Bee',
-      theme: AppTheme.darkTheme,
-      debugShowCheckedModeBanner: false,
-      routerConfig: router,
-    );
-  }
 }
