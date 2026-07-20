@@ -1,8 +1,8 @@
 // lib/features/calendar/ui/widgets/calendar_grid.dart
 import 'package:flutter/material.dart';
-import 'package:frontend/features/calender/state/calender_provier.dart';
-import 'package:frontend/features/calender/ui/widgets/day_call.dart';
-import 'package:frontend/features/calender/ui/widgets/weekday_labels.dart';
+import 'package:frontend/features/calendar/state/calendar_provider.dart';
+import 'package:frontend/features/calendar/ui/widgets/day_call.dart';
+import 'package:frontend/features/calendar/ui/widgets/weekday_labels.dart';
 import 'package:provider/provider.dart';
 
 

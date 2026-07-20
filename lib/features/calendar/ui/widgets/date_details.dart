@@ -1,7 +1,7 @@
 // lib/features/calendar/ui/widgets/date_details.dart
 import 'package:flutter/material.dart';
-import 'package:frontend/features/calender/state/calender_provier.dart';
-import 'package:frontend/features/calender/ui/widgets/empty_state.dart';
+import 'package:frontend/features/calendar/state/calendar_provider.dart';
+import 'package:frontend/features/calendar/ui/widgets/empty_state.dart';
 import 'package:frontend/features/dashboard/ui/widgets/task_card.dart';
 import 'package:provider/provider.dart';
 

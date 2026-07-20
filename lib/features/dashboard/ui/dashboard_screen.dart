@@ -1,7 +1,7 @@
 // lib/features/dashboard/ui/screens/dashboard_screen.dart
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/features/calender/ui/calender_screen.dart';
+import 'package:frontend/features/calendar/ui/calendar_screen.dart';
 import 'package:frontend/features/notifications/state/notification_provider.dart';
 import 'package:frontend/features/profile/ui/settings_screen.dart';
 import 'package:frontend/features/stats/ui/stats_screen.dart';

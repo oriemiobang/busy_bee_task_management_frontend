@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/features/stats/state/stats_provoder.dart';
+import 'package:frontend/features/stats/state/stats_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/core/constants/colors.dart';
 // import 'package:frontend/features/stats/state/stats_provider.dart';

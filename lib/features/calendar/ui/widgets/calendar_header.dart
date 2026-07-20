@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/features/calender/state/calender_provier.dart';
+import 'package:frontend/features/calendar/state/calendar_provider.dart';
 import 'package:provider/provider.dart';
 
 

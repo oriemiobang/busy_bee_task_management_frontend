@@ -1,10 +1,10 @@
 // lib/features/calendar/ui/screens/calendar_screen.dart
 import 'package:flutter/material.dart';
 import 'package:frontend/core/constants/colors.dart';
-import 'package:frontend/features/calender/state/calender_provier.dart';
-import 'package:frontend/features/calender/ui/widgets/calender_grid.dart';
-import 'package:frontend/features/calender/ui/widgets/calender_header.dart';
-import 'package:frontend/features/calender/ui/widgets/date_details.dart';
+import 'package:frontend/features/calendar/state/calendar_provider.dart';
+import 'package:frontend/features/calendar/ui/widgets/calendar_grid.dart';
+import 'package:frontend/features/calendar/ui/widgets/calendar_header.dart';
+import 'package:frontend/features/calendar/ui/widgets/date_details.dart';
 import 'package:provider/provider.dart';
 
 

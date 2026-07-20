@@ -183,10 +183,7 @@ try {
 }
 
 
-// ADD THESE IMPORTS AT TOP
 
-
-// REPLACE createTask method with resilient version
 Future<TaskModel> createTask({
   required String title,
   required String description,
@@ -237,7 +234,7 @@ Future<TaskModel> createTask({
     rethrow;
   }
 }
-// REPLACE updateTask method (fully updated with recurrence)
+
 Future<TaskModel> updateTask({
   required int taskId,
   String? title,
@@ -317,67 +314,6 @@ Future<TaskModel> updateTask({
     rethrow;
   }
 }
-// // REPLACE updateTask method
-// Future<TaskModel> updateTask({
-//   required int taskId,
-//   String? title,
-//   String? description,
-//   DateTime? startTime,
-//   DateTime? deadline,
-//   List<SubTaskModel>? subtasks,
-//   String? status,
-// }) async {
-//   try {
-//     _setLoading(true);
-//     _setError(null);
-    
-//     final updatedTask = await _tasksRepository.updateTask(
-//       taskId: taskId,
-//       title: title,
-//       description: description,
-//       startTime: startTime,
-//       deadline: deadline,
-//       subtasks: subtasks,
-//       status: status,
-//     );
-    
-//     // Update local state
-//     final index = _tasks.indexWhere((t) => t.id == taskId);
-//     if (index != -1) {
-//       _tasks[index] = updatedTask;
-//     }
-    
-//     _setLoading(false);
-//     notifyListeners();
-    
-//     return updatedTask;
-//   } catch (e) {
-//     _setError(e.toString());
-//     _setLoading(false);
-//     rethrow;
-//   }
-// }
-
-
-
-  // ─────── ───────────────── Stats ─────────────────────────
-
-  // Future<void> fetchTaskStats() async {
-  //   try {
-  //     _stats = await _tasksRepository.getTaskStats();
-  //     notifyListeners();
-  //   } catch (_) {}
-  // }
-
-  // ───────────────────────── Utilities ─────────────────────────
-
-  // TaskModel? getTaskById(int id) {
-  //   try {
-  //     return _tasks.firstWhere((t) => t.id == id);
-  //   } catch (_) {
-  //     return null;
-  //   }
-  // }
 
   void clearError() => _setError(null);
 
