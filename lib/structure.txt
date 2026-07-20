@@ -1,18 +1,24 @@
 lib/
 │
 ├── main.dart
-├── app.dart
+├── firebase_options.dart
 │
 ├── core/
 │   ├── constants/
 │   │   ├── api_endpoints.dart
 │   │   ├── colors.dart
-│   │   └── strings.dart
+│   │   └── env.dart
+│   │
+│   ├── extensions/
+│   │   └── date_extensions.dart
 │   │
 │   ├── network/
-│   │   ├── dio_client.dart
 │   │   ├── api_interceptors.dart
-│   │   └── error_handler.dart
+│   │   └── dio_client.dart
+│   │
+│   ├── providers/
+│   │   ├── app_provider.dart
+│   │   └── initailize.dart
 │   │
 │   ├── storage/
 │   │   └── secure_storage.dart
@@ -21,8 +27,7 @@ lib/
 │   │   └── app_theme.dart
 │   │
 │   └── utils/
-│       ├── date_utils.dart
-│       └── validators.dart
+│       └── navigation_helper.dart
 │
 ├── features/
 │   │
@@ -38,67 +43,103 @@ lib/
 │   │   │   └── auth_provider.dart
 │   │   │
 │   │   └── ui/
+│   │       ├── forgot_password_screen.dart
 │   │       ├── login_screen.dart
 │   │       └── register_screen.dart
 │   │
-│   ├── tasks/
+│   ├── calender/
+│   │   ├── state/
+│   │   │   └── calender_provier.dart
+│   │   │
+│   │   └── ui/
+│   │       ├── calender_screen.dart
+│   │       └── widgets/
+│   │           ├── calender_grid.dart
+│   │           ├── calender_header.dart
+│   │           ├── date_details.dart
+│   │           ├── day_call.dart
+│   │           ├── empty_state.dart
+│   │           ├── task_card.dart
+│   │           └── weekday_labels.dart
+│   │
+│   ├── dashboard/
 │   │   ├── data/
 │   │   │   ├── tasks_api.dart
 │   │   │   └── tasks_repository.dart
 │   │   │
-│   │   ├── models/
+│   │   ├── model/
 │   │   │   ├── task_model.dart
-│   │   │   └── subtask_model.dart
+│   │   │   └── task_stats.dart
 │   │   │
 │   │   ├── state/
 │   │   │   └── tasks_provider.dart
 │   │   │
 │   │   └── ui/
-│   │       ├── tasks_screen.dart
-│   │       ├── create_task_screen.dart
-│   │       └── task_details_screen.dart
-│   │
-│   ├── dashboard/
-│   │   ├── data/
-│   │   │   ├── dashboard_api.dart
-│   │   │   └── dashboard_repository.dart
-│   │   │
-│   │   ├── models/
-│   │   │   └── dashboard_model.dart
-│   │   │
-│   │   ├── state/
-│   │   │   └── dashboard_provider.dart
-│   │   │
-│   │   └── ui/
-│   │       └── dashboard_screen.dart
+│   │       ├── add_task.dart
+│   │       ├── dashboard_screen.dart
+│   │       └── widgets/
+│   │           ├── custom_bottom_nav.dart
+│   │           ├── dashboard_header.dart
+│   │           ├── date_picker.dart
+│   │           ├── date_selector.dart
+│   │           ├── recurrence_picker.dart
+│   │           ├── subtask_list.dart
+│   │           ├── task_action.dart
+│   │           ├── task_card.dart
+│   │           ├── task_title_field.dart
+│   │           └── time_picker.dart
 │   │
 │   ├── notifications/
 │   │   ├── data/
-│   │   │   └── notifications_api.dart
+│   │   │   ├── notification_api.dart
+│   │   │   └── notification_repository.dart
 │   │   │
-│   │   ├── models/
+│   │   ├── model/
 │   │   │   └── notification_model.dart
 │   │   │
 │   │   ├── state/
-│   │   │   └── notifications_provider.dart
+│   │   │   └── notification_provider.dart
 │   │   │
 │   │   └── ui/
 │   │       └── notifications_screen.dart
 │   │
-│   └── profile/
-│       ├── ui/
-│       │   └── profile_screen.dart
-│       └── state/
-│           └── profile_provider.dart
-│
-├── shared/
-│   ├── widgets/
-│   │   ├── primary_button.dart
-│   │   ├── loading_indicator.dart
-│   │   └── empty_state.dart
+│   ├── profile/
+│   │   ├── data/
+│   │   │   ├── account_api.dart
+│   │   │   └── account_repository.dart
+│   │   │
+│   │   ├── state/
+│   │   │   └── account_provider.dart
+│   │   │
+│   │   └── ui/
+│   │       ├── settings_screen.dart
+│   │       ├── update_password.dart
+│   │       └── widgets/
+│   │           ├── profile_header.dart
+│   │           ├── settings_items.dart
+│   │           └── settings_section.dart
 │   │
-│   └── layout/
-│       └── main_scaffold.dart
+│   └── stats/
+│       ├── data/
+│       │   ├── stats_api.dart
+│       │   └── stats_repository.dart
+│       │
+│       ├── model/
+│       │   └── stats_model.dart
+│       │
+│       ├── state/
+│       │   └── stats_provoder.dart
+│       │
+│       └── ui/
+│           ├── stats_screen.dart
+│           └── widgets/
+│               ├── progress_circle.dart
+│               ├── stats_card.dart
+│               ├── stats_header.dart
+│               └── weekly_chart.dart
 │
-└── routes/
-    └── app_routes.dart
+├── routes/
+│   ├── app_routes.dart
+│   └── custom_transitions.dart
+│
+└── shared/

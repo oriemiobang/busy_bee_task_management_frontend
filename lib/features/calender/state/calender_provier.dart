@@ -39,21 +39,38 @@ class CalendarProvider with ChangeNotifier {
     }
   }
 
-  //  Get ALL tasks directly from TasksProvider (single source of truth)
-  List<TaskModel> get allTasks => _occurrences;
+  //  Get ALL tasks directly from TasksProvider (single source of truth) + occurrences
+  List<TaskModel> get allTasks {
+    final normalTasks = _tasksProvider.tasks.where(
+        (t) => t.recurrenceType == null || t.recurrenceType == 'ONCE');
+    return [...normalTasks, ..._occurrences];
+  }
 
   //  Get tasks for SELECTED date (reactive)
-  List<TaskModel> get tasksForSelectedDate => _occurrences.where((task) =>
-        task.createdAt.year == _selectedDate.year &&
-        task.createdAt.month == _selectedDate.month &&
-        task.createdAt.day == _selectedDate.day).toList();
+  List<TaskModel> get tasksForSelectedDate => allTasks.where((task) {
+        final date = _selectedDate;
+        final matchesStart = task.startTime.year == date.year &&
+            task.startTime.month == date.month &&
+            task.startTime.day == date.day;
+        final matchesDeadline = task.deadline != null &&
+            task.deadline!.year == date.year &&
+            task.deadline!.month == date.month &&
+            task.deadline!.day == date.day;
+        return matchesStart || matchesDeadline;
+      }).toList();
 
   //  Get task count for ANY date (for dot indicators)
   int getTaskCountForDate(DateTime date) {
-    return _occurrences.where((task) =>
-        task.createdAt.year == date.year &&
-        task.createdAt.month == date.month &&
-        task.createdAt.day == date.day).length;
+    return allTasks.where((task) {
+        final matchesStart = task.startTime.year == date.year &&
+            task.startTime.month == date.month &&
+            task.startTime.day == date.day;
+        final matchesDeadline = task.deadline != null &&
+            task.deadline!.year == date.year &&
+            task.deadline!.month == date.month &&
+            task.deadline!.day == date.day;
+        return matchesStart || matchesDeadline;
+    }).length;
   }
 
   // State getters

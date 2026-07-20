@@ -1,5 +1,6 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
+import 'package:frontend/core/theme/app_theme.dart';
 import 'package:frontend/core/network/dio_client.dart';
 import 'package:frontend/core/storage/secure_storage.dart';
 import 'package:frontend/features/auth/data/auth_api.dart';
@@ -116,19 +117,7 @@ class MyApp extends StatelessWidget {
     final router = AppRoutes.router(context);
     return MaterialApp.router(
       title: 'Busy Bee',
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6366F1),
-          brightness: Brightness.dark,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.black,
-          elevation: 0,
-          centerTitle: true,
-        ),
-      ),
+      theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
       routerConfig: router,
     );
