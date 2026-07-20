@@ -4,7 +4,7 @@ import 'package:frontend/features/auth/state/auth_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/core/constants/colors.dart';
-import 'package:frontend/core/providers/app_provider.dart';
+
 import 'package:frontend/routes/app_routes.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -46,20 +46,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text,
-        authProvider: "LOCAL"
+        authProvider: "LOCAL",
       );
 
       // Registration successful - navigate to dashboard
       if (context.mounted) {
-          print('here in the mounted statement');
+        print('here in the mounted statement');
         // final router = GoRouter.of(context);
         // router.goNamed(AppRoutes.dashboard);
-      
+
         context.go(AppRoutes.register);
       }
     } catch (e) {
       // Show error message
-       print('here in the catch ');
+      print('here in the catch ');
       setState(() {
         _errorMessage = e.toString();
       });
@@ -101,10 +101,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 8),
               Text(
                 'Join to boost your productivity',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
               ),
               const SizedBox(height: 40),
 
@@ -259,8 +256,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.error_outline,
-                                color: Colors.red, size: 20),
+                            const Icon(
+                              Icons.error_outline,
+                              color: Colors.red,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -290,8 +290,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.error_outline,
-                                color: Colors.red, size: 20),
+                            const Icon(
+                              Icons.error_outline,
+                              color: Colors.red,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -321,9 +324,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         onPressed: isLoading
                             ? null
-                            : () =>_registerUser(context),
+                            : () => _registerUser(context),
                         child: isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
                             : const Text(
                                 'Sign Up',
                                 style: TextStyle(
@@ -348,7 +353,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             height: 1.5,
                           ),
                           children: [
-                            const TextSpan(text: 'By signing up, you agree to our '),
+                            const TextSpan(
+                              text: 'By signing up, you agree to our ',
+                            ),
                             TextSpan(
                               text: 'Terms of Service',
                               style: TextStyle(
@@ -456,7 +463,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               : () {
                                   //  final router = GoRouter.of(context);
                                   //  NavigationService.goToLogin();
-                                   context.go(AppRoutes.login);
+                                  context.go(AppRoutes.login);
                                   //  router.pushNamed(AppRoutes.login);
                                 },
                           child: Text(

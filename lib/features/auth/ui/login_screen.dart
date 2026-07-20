@@ -5,8 +5,6 @@ import 'package:frontend/routes/app_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/core/constants/colors.dart';
-import 'package:frontend/core/providers/app_provider.dart';
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,7 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
     // final authProvider = appProvider.authProvider;
 
     return Scaffold(
-
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -46,10 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 8),
               Text(
                 'Sign in to continue to your account',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
               ),
               const SizedBox(height: 40),
 
@@ -174,11 +168,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: BoxDecoration(
                           color: Colors.red.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.red.withOpacity(0.3)),
+                          border: Border.all(
+                            color: Colors.red.withOpacity(0.3),
+                          ),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.error_outline, color: Colors.red, size: 20),
+                            const Icon(
+                              Icons.error_outline,
+                              color: Colors.red,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -212,12 +212,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 if (_formKey.currentState!.validate()) {
                                   authProvider.clearError();
                                   try {
-                                    await authProvider.login(email: _emailController.text,
+                                    await authProvider.login(
+                                      email: _emailController.text,
                                       password: _passwordController.text,
-                                      
                                     );
                                     context.go(AppRoutes.login);
-                                   
                                   } catch (e) {
                                     print('Login error: $e');
                                     // Error handled in provider
@@ -225,7 +224,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 }
                               },
                         child: authProvider.isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
                             : const Text(
                                 'Sign In',
                                 style: TextStyle(
@@ -241,9 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Divider
                     Row(
                       children: [
-                        Expanded(
-                          child: Divider(color: AppColors.borderDark),
-                        ),
+                        Expanded(child: Divider(color: AppColors.borderDark)),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
@@ -254,9 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        Expanded(
-                          child: Divider(color: AppColors.borderDark),
-                        ),
+                        Expanded(child: Divider(color: AppColors.borderDark)),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -316,14 +313,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           onTap: authProvider.isLoading
                               ? null
                               : () {
-                                // NavigationService.goToRegister();
-                                context.go(AppRoutes.register);
-                                //  final router = GoRouter.of(context);
-                                //  router.goNamed(AppRoutes.register);
-                                //   Navigator.pushNamed(
-                                //     context,
-                                //     AppRoutes.register,
-                                //   );
+                                  // NavigationService.goToRegister();
+                                  context.go(AppRoutes.register);
+                                  //  final router = GoRouter.of(context);
+                                  //  router.goNamed(AppRoutes.register);
+                                  //   Navigator.pushNamed(
+                                  //     context,
+                                  //     AppRoutes.register,
+                                  //   );
                                 },
                           child: Text(
                             'Sign Up',
