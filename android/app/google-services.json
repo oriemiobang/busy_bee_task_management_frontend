@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1008172033913:android:a0571859aa914fb0fe31a8",
+        "mobilesdk_app_id": "1:1008172033913:android:a2293027b97bb6bcfe31a8",
         "android_client_info": {
-          "package_name": "com.busybee"
+          "package_name": "com.busybee.app"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "1008172033913-0dvba55j788vphaosrvpn0a052pqk0g6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.busybee.app",
+            "certificate_hash": "0e4a64c49d9b4cd532c2cca74d1e5e6bc47d0590"
+          }
+        },
         {
           "client_id": "1008172033913-nmd5582vokn38l5iooi2taieh4741s5g.apps.googleusercontent.com",
           "client_type": 3

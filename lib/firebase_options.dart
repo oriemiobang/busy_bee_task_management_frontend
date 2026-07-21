@@ -52,21 +52,20 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBsLjMj4Tbii7b4_OthaJf01k2M6EKb3nI',
-    appId: '1:1008172033913:android:a0571859aa914fb0fe31a8',
+    appId: '1:1008172033913:android:a2293027b97bb6bcfe31a8',
     messagingSenderId: '1008172033913',
     projectId: 'busy-bee-7e457',
     storageBucket: 'busy-bee-7e457.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyA-MmfbZwyl4L4oG-Q2B2e10XxSgrbvBJs',
     appId: '1:1008172033913:ios:ba5963a9bd7cf832fe31a8',
     messagingSenderId: '1008172033913',
     projectId: 'busy-bee-7e457',
     storageBucket: 'busy-bee-7e457.firebasestorage.app',
+    iosClientId: '1008172033913-homnbp4p09mvqmh0ob3n2c7ubp4udv4c.apps.googleusercontent.com',
     iosBundleId: 'com.example.frontend',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyA-MmfbZwyl4L4oG-Q2B2e10XxSgrbvBJs',
     appId: '1:1008172033913:ios:ba5963a9bd7cf832fe31a8',
