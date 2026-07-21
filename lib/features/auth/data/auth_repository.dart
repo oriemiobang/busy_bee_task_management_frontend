@@ -3,62 +3,60 @@ import 'package:frontend/features/auth/data/auth_api.dart';
 import 'package:frontend/features/auth/models/user_model.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-
 class AuthRepository {
   final AuthApi _authApi;
   final SecureStorage _secureStorage;
- 
-  
+
   AuthRepository({
     required AuthApi authApi,
     required SecureStorage secureStorage,
   }) : _authApi = authApi,
        _secureStorage = secureStorage;
-  
+
   Future<AuthResponse> register({
     required String name,
     required String email,
     required String password,
-    required String auth_provider
+    required String auth_provider,
   }) async {
     final response = await _authApi.register(
       name: name,
       email: email,
       password: password,
-      auth_provider: auth_provider
+      auth_provider: auth_provider,
     );
-    
+
     // Save tokens and user data
     await _saveAuthData(response);
-    
+
     return response;
   }
 
-  Future<AuthResponse> changePassword({required String currentPassword, required String newPassword}) async{
+  Future<AuthResponse> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final response = await _authApi.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
 
-    final response = await _authApi.changePassword(currentPassword: currentPassword,
-     newPassword: newPassword);
-
-     await _saveAuthData(response);
-     return response;
-
+    await _saveAuthData(response);
+    return response;
   }
-  
+
   Future<AuthResponse> login({
     required String email,
     required String password,
   }) async {
-    final response = await _authApi.login(
-      email: email,
-      password: password,
-    );
-    
+    final response = await _authApi.login(email: email, password: password);
+
     // Save tokens and user data
     await _saveAuthData(response);
-    
+
     return response;
   }
-  
+
   Future<void> logout() async {
     try {
       await _authApi.logout();
@@ -69,7 +67,6 @@ class AuthRepository {
     }
   }
 
-  
   Future<void> forgotPassword(String email) async {
     await _authApi.forgotPassword(email);
   }
@@ -77,81 +74,81 @@ class AuthRepository {
   Future<void> resetPassword(String token, String newPassword) async {
     await _authApi.resetPassword(token, newPassword);
   }
-  
+
   Future<bool> isLoggedIn() async {
     final token = await _secureStorage.getAccessToken();
     return token != null && token.isNotEmpty;
   }
-  
-Future<UserModel?> getCurrentUser() async {
-  final userId = await _secureStorage.getUserId();
-  final email = await _secureStorage.getUserEmail();
-  final name = await _secureStorage.getUserName();
-  final imageUrl = await _secureStorage.getUserImage();
 
-  if (userId == null || email == null || name == null) {
-    return null;
+  Future<UserModel?> getCurrentUser() async {
+    final userId = await _secureStorage.getUserId();
+    final email = await _secureStorage.getUserEmail();
+    final name = await _secureStorage.getUserName();
+    final imageUrl = await _secureStorage.getUserImage();
+
+    if (userId == null || email == null || name == null) {
+      return null;
+    }
+
+    return UserModel(
+      id: userId,
+      name: name,
+      email: email,
+      imageUrl: imageUrl ?? '',
+      authProvider: 'LOCAL',
+    );
   }
 
-  return UserModel(
-    id: userId,
-    name: name,
-    email: email,
-    imageUrl: imageUrl ?? '',
-    authProvider: 'LOCAL',
-  );
-}
+  Future<UserModel> fetchUserProfile() async {
+    final user = await _authApi.getProfile();
 
-Future<UserModel> fetchUserProfile() async {
-  final user = await _authApi.getProfile();
+    // Update secure storage with fresh data
+    await _secureStorage.saveUserData(
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      imageUrl: user.imageUrl,
+    );
 
-  // Update secure storage with fresh data
-  await _secureStorage.saveUserData(
-    userId: user.id,
-    email: user.email,
-    name: user.name,
-    imageUrl: user.imageUrl,
-  );
-
-  return user;
-}
-  
-Future<void> _saveAuthData(AuthResponse response) async {
-  await _secureStorage.saveAccessToken(response.accessToken);
-  await _secureStorage.saveRefreshToken(response.refreshToken);
-
-  await _secureStorage.saveUserData(
-    userId: response.user.id,
-    email: response.user.email,
-    name: response.user.name,
-    imageUrl: response.user.imageUrl,
-  );
-}
-
-Future<AuthResponse> loginWithGoogle() async {
-  final GoogleSignIn googleSignIn = GoogleSignIn.instance;
-
-  await googleSignIn.initialize(
-    serverClientId: "824622018506-8m4sgbad5j60e6rs8v3si6skukra9ud5.apps.googleusercontent.com",
-  );
-
-  final GoogleSignInAccount? googleUser =
-      await googleSignIn.authenticate();
-
-  if (googleUser == null) {
-    throw Exception("Google sign-in cancelled");
+    return user;
   }
 
-  final idToken = googleUser.authentication.idToken;
+  Future<void> _saveAuthData(AuthResponse response) async {
+    await _secureStorage.saveAccessToken(response.accessToken);
+    await _secureStorage.saveRefreshToken(response.refreshToken);
 
-  if (idToken == null) {
-    throw Exception("No ID token from Google");
+    await _secureStorage.saveUserData(
+      userId: response.user.id,
+      email: response.user.email,
+      name: response.user.name,
+      imageUrl: response.user.imageUrl,
+    );
   }
 
-  final response = await _authApi.googleLogin(idToken);
+  Future<AuthResponse> loginWithGoogle() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn.instance;
 
-  await _saveAuthData(response);
+    await googleSignIn.initialize(
+      serverClientId:
+          "1008172033913-nmd5582vokn38l5iooi2taieh4741s5g.apps.googleusercontent.com",
+    );
 
-  return response;
-}
+    final GoogleSignInAccount? googleUser = await googleSignIn.authenticate();
+
+    if (googleUser == null) {
+      throw Exception("Google sign-in cancelled");
+    }
+
+    final idToken = googleUser.authentication.idToken;
+
+    if (idToken == null) {
+      throw Exception("No ID token from Google");
+    }
+
+    final response = await _authApi.googleLogin(idToken);
+
+    await _saveAuthData(response);
+
+    return response;
+  }
 }

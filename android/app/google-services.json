@@ -12,7 +12,12 @@
           "package_name": "com.busybee"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1008172033913-nmd5582vokn38l5iooi2taieh4741s5g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBsLjMj4Tbii7b4_OthaJf01k2M6EKb3nI"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1008172033913-nmd5582vokn38l5iooi2taieh4741s5g.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1008172033913-homnbp4p09mvqmh0ob3n2c7ubp4udv4c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.frontend"
+              }
+            }
+          ]
         }
       }
     }
